@@ -1,0 +1,368 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neurofisiología Avanzada - ZV Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f5;
+            color: black;
+        }
+
+        .brutalist-border {
+            border: 4px solid black;
+        }
+
+        .brutalist-shadow {
+            box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+        }
+
+        .brutalist-shadow-sm {
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+        }
+
+        .brutalist-btn {
+            transition: all 0.1s ease-in-out;
+            cursor: pointer;
+        }
+
+            .brutalist-btn:active:not(:disabled) {
+                transform: translate(4px, 4px);
+                box-shadow: 0px 0px 0px 0px rgba(0,0,0,1);
+            }
+
+            .brutalist-btn.active {
+                background-color: black !important;
+                color: white !important;
+            }
+
+        .gate {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes flow-down {
+            from {
+                transform: translate(-50%, -10px);
+                opacity: 1;
+            }
+
+            to {
+                transform: translate(-50%, 100px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes flow-up {
+            from {
+                transform: translate(-50%, 10px);
+                opacity: 1;
+            }
+
+            to {
+                transform: translate(-50%, -100px);
+                opacity: 0;
+            }
+        }
+
+        .animate-flow-down {
+            animation: flow-down 0.5s linear infinite;
+        }
+
+        .animate-flow-up {
+            animation: flow-up 0.5s linear infinite;
+        }
+
+        .pump-active {
+            animation: pulse 0.5s infinite;
+            color: #facc15 !important;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+
+    <header class="max-w-7xl mx-auto mb-6 bg-yellow-400 brutalist-border brutalist-shadow p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>
+            <h1 class="text-4xl md:text-5xl font-black uppercase tracking-tighter italic">NEURO-LAB ZV</h1>
+            <p class="font-bold text-black mt-1 uppercase text-xs tracking-widest text-center md:text-left">Simulador de Excitabilidad y Farmacología</p>
+        </div>
+        <div class="bg-black text-white px-8 py-3 brutalist-border flex flex-col items-center min-w-[180px]">
+            <span class="text-[10px] font-black text-yellow-400 uppercase">Voltaje de Membrana</span>
+            <span id="vDisplay" class="font-black text-4xl">-70 mV</span>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- PANEL DE CONTROL IZQUIERDO -->
+        <aside class="lg:col-span-2 space-y-4">
+            <div class="bg-white brutalist-border brutalist-shadow-sm p-4">
+                <h3 class="font-black uppercase text-xs mb-3 border-b-4 border-black pb-1 italic">Farmacología</h3>
+                <div class="flex flex-col gap-2">
+                    <button onclick="setDrug('normal')" id="drug-normal" class="drug-btn brutalist-btn brutalist-border p-2 text-[10px] font-black uppercase bg-zinc-200 active">Fisiológico</button>
+                    <button onclick="setDrug('ttx')" id="drug-ttx" class="drug-btn brutalist-btn brutalist-border p-2 text-[10px] font-black uppercase bg-red-400">Bloqueo NaV (TTX)</button>
+                    <button onclick="setDrug('amiodarona')" id="drug-amiodarona" class="drug-btn brutalist-btn brutalist-border p-2 text-[10px] font-black uppercase bg-blue-400 text-white">Bloqueo KV (Amio)</button>
+                    <button onclick="setDrug('gaba')" id="drug-gaba" class="drug-btn brutalist-btn brutalist-border p-2 text-[10px] font-black uppercase bg-purple-500 text-white">Agonista GABA</button>
+                </div>
+            </div>
+
+            <div class="bg-white brutalist-border brutalist-shadow-sm p-4 text-center">
+                <span class="text-[10px] font-black uppercase block mb-2">Bomba Na+/K+</span>
+                <i id="pumpIcon" class="fas fa-sync-alt text-4xl text-zinc-300 transition-colors"></i>
+            </div>
+        </aside>
+
+        <!-- VISUALIZACIÓN CENTRAL -->
+        <section class="lg:col-span-7 space-y-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Canal NaV -->
+                <div class="bg-white brutalist-border p-3 h-52 flex flex-col items-center relative overflow-hidden">
+                    <span class="text-[9px] font-black mb-1 uppercase">Canal NaV (m/h)</span>
+                    <div class="relative w-12 h-24 border-x-4 border-black bg-pink-50">
+                        <div id="gateNaM" class="absolute top-4 left-0 w-full h-2 bg-black gate origin-left"></div>
+                        <div id="gateNaH" class="absolute bottom-4 left-0 w-full h-3 bg-red-600 gate origin-left"></div>
+                        <div id="naFlow" class="absolute inset-0 hidden"><div class="absolute left-1/2 w-4 h-4 bg-yellow-400 border-2 border-black rounded-full animate-flow-down"></div></div>
+                    </div>
+                    <div id="stNa" class="mt-2 text-[8px] font-black uppercase p-1 w-full text-center border border-black bg-red-400 text-white italic">Cerrado</div>
+                </div>
+
+                <!-- Canal KV -->
+                <div class="bg-white brutalist-border p-3 h-52 flex flex-col items-center relative overflow-hidden">
+                    <span class="text-[9px] font-black mb-1 uppercase">Canal KV (n)</span>
+                    <div class="relative w-12 h-24 border-x-4 border-black bg-blue-50">
+                        <div id="gateKN" class="absolute bottom-4 left-0 w-full h-4 bg-blue-800 gate origin-left"></div>
+                        <div id="kFlow" class="absolute inset-0 hidden"><div class="absolute left-1/2 w-4 h-4 bg-purple-500 border-2 border-black rounded-full animate-flow-up"></div></div>
+                    </div>
+                    <div id="stKN" class="mt-2 text-[8px] font-black uppercase p-1 w-full text-center border border-black bg-red-400 text-white italic">Cerrado</div>
+                </div>
+
+                <!-- Canal Ca2+ y Cl- -->
+                <div class="col-span-2 bg-white brutalist-border p-3 h-52 flex justify-around items-center">
+                    <div class="flex flex-col items-center">
+                        <span class="text-[9px] font-black uppercase mb-1">Ca2+ (L)</span>
+                        <div class="relative w-10 h-20 border-x-4 border-black bg-orange-50">
+                            <div id="gateCa" class="absolute top-4 left-0 w-full h-2 bg-orange-800 gate origin-left"></div>
+                            <div id="caFlow" class="absolute inset-0 hidden"><div class="absolute left-1/2 w-3 h-3 bg-orange-400 border-2 border-black rounded-full animate-flow-down"></div></div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-[9px] font-black uppercase mb-1">Cl- (GABA)</span>
+                        <div class="relative w-10 h-20 border-x-4 border-black bg-emerald-50">
+                            <div id="gateCl" class="absolute top-4 left-0 w-full h-2 bg-emerald-800 gate origin-left"></div>
+                            <div id="clFlow" class="absolute inset-0 hidden"><div class="absolute left-1/2 w-3 h-3 bg-emerald-400 border-2 border-black rounded-full animate-flow-down"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OSCILOSCOPIO -->
+            <div class="bg-white brutalist-border p-4 h-48 relative overflow-hidden">
+                <svg viewBox="0 0 400 200" class="w-full h-full">
+                    <path d="M 0 160 L 400 160" stroke="#e4e4e7" stroke-width="2" stroke-dasharray="4" />
+                    <path id="paPath" d="M 20 160 L 60 160 L 100 145 L 140 40 L 220 180 L 300 190 L 380 160" fill="none" stroke="black" stroke-width="4" />
+                    <circle id="cursor" cx="20" cy="160" r="8" fill="yellow" stroke="black" stroke-width="3" />
+                    <text x="310" y="25" font-size="10" font-weight="900" class="uppercase">Voltaje vs Tiempo</text>
+                </svg>
+            </div>
+
+            <!-- SELECTOR DE FASES -->
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+                <button onclick="setStep(0)" id="step0" class="step-btn brutalist-btn brutalist-border p-3 bg-zinc-200 font-black uppercase text-[10px]">1. Reposo</button>
+                <button onclick="setStep(1)" id="step1" class="step-btn brutalist-btn brutalist-border p-3 bg-yellow-300 font-black uppercase text-[10px]">2. Umbral</button>
+                <button onclick="setStep(2)" id="step2" class="step-btn brutalist-btn brutalist-border p-3 bg-pink-400 font-black uppercase text-[10px]">3. Despol.</button>
+                <button onclick="setStep(3)" id="step3" class="step-btn brutalist-btn brutalist-border p-3 bg-blue-400 font-black uppercase text-[10px]">4. Repol.</button>
+                <button onclick="setStep(4)" id="step4" class="step-btn brutalist-btn brutalist-border p-3 bg-purple-400 font-black uppercase text-[10px]">5. Hiperpol.</button>
+                <button onclick="setStep(5)" id="step5" class="step-btn brutalist-btn brutalist-border p-3 bg-emerald-400 font-black uppercase text-[10px]">6. Final</button>
+            </div>
+        </section>
+
+        <!-- PANEL DE DESCRIPCIÓN TÉCNICA -->
+        <aside class="lg:col-span-3 space-y-4">
+            <div class="bg-black text-white brutalist-border p-5 h-72 overflow-y-auto">
+                <h4 id="stepTitle" class="text-yellow-400 font-black uppercase text-sm mb-2 italic tracking-tighter">ESTADO</h4>
+                <p id="stepDesc" class="text-[11px] font-bold uppercase leading-tight mb-4 text-zinc-300"></p>
+                <div class="border-t border-zinc-700 pt-3">
+                    <span class="text-[9px] text-zinc-500 uppercase block font-black mb-1 italic">Mecanismo de Compuertas:</span>
+                    <div id="gateInfo" class="text-[10px] font-mono text-emerald-400 whitespace-pre-line leading-relaxed"></div>
+                </div>
+            </div>
+
+            <div class="bg-white brutalist-border p-4 brutalist-shadow-sm">
+                <div id="refractoryTag" class="text-[10px] font-black uppercase p-1 mb-2 text-center border-2 border-black">BASAL</div>
+                <h5 id="refTitle" class="font-black text-xs uppercase mb-1 italic">EXCITABILIDAD TOTAL</h5>
+                <p id="refDesc" class="text-[9px] font-bold leading-tight uppercase text-zinc-600"></p>
+
+                <a href="https://www.instagram.com/gesprache_vzla" target="_blank" class="block mt-4 brutalist-border bg-black text-white p-2 text-center text-[10px] font-black hover:bg-yellow-400 hover:text-black transition-colors uppercase">
+                    COMPARACION ENTRE PA Meseta y PA Espiga
+                </a>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        const steps = [
+            {
+                title: "1. Reposo Dinámico", v: -70, m: 1, h: 0, n: 1, ca: 1, fNa: false, fK: false, fCa: false, pump: true,
+                desc: "Estado estable. El potencial de reposo se mantiene gracias a los canales de fuga y la bomba Na/K.",
+                gateInfo: "NaV: m(C) / h(A)\nKV: n(C)\nEstado: Listo.",
+                refName: "EXCITABILIDAD BASAL", refTag: "LISTO", refColor: "bg-zinc-100",
+                refDesc: "Los canales de Na+ están disponibles (h abierta). Un estímulo umbral iniciará la cascada."
+            },
+            {
+                title: "2. Umbral Crítico", v: -55, m: 0.5, h: 0, n: 1, ca: 0.8, fNa: true, fK: false, fCa: false, pump: false,
+                desc: "Se alcanza el voltaje de disparo. Las compuertas 'm' detectan el cambio de campo eléctrico y rotan para abrir el poro.",
+                gateInfo: "NaV: m(Abriendo...) / h(A)\nKV: n(C)\nFeedback de Hodgkin.",
+                refName: "P.R. ABSOLUTO (INICIO)", refTag: "P.R.A.", refColor: "bg-red-300",
+                refDesc: "Una vez alcanzado, el proceso es irreversible. No se puede generar otro potencial."
+            },
+            {
+                title: "3. Despolarización (Pico)", v: 35, m: 0, h: 0.8, n: 0.8, ca: 0, fNa: true, fK: false, fCa: true, pump: false,
+                desc: "Máximo flujo de Na+ y entrada de Ca2+ L. Al final, la compuerta 'h' (bola y cadena) bloquea el canal.",
+                gateInfo: "NaV: m(A) / h(Inactivando)\nKV: n(Abriendo lento)\nCaV: Canal L activo.",
+                refName: "P.R. ABSOLUTO (MÁXIMO)", refTag: "P.R.A.", refColor: "bg-red-600 text-white",
+                refDesc: "Canales NaV inactivados por la compuerta 'h'. Imposible re-estimular."
+            },
+            {
+                title: "4. Repolarización", v: -60, m: 1, h: 1, n: 0, ca: 1, fNa: false, fK: true, fCa: false, pump: false,
+                desc: "Salida masiva de K+. El voltaje cae rápidamente. Las compuertas de Na+ inician su 'reset'.",
+                gateInfo: "NaV: h(A) / m(C)\nKV: n(A)\nK+ sale a favor de gradiente.",
+                refName: "P.R. RELATIVO", refTag: "P.R.R.", refColor: "bg-blue-400 text-white",
+                refDesc: "Solo un estímulo SUPRAUMBRAL puede disparar un nuevo PA."
+            },
+            {
+                title: "5. Hiperpolarización", v: -90, m: 1, h: 0, n: 0.5, ca: 1, fNa: false, fK: true, fCa: false, pump: true,
+                desc: "El voltaje baja de -70mV debido a que los canales KV (n) son lentos para cerrar.",
+                gateInfo: "NaV: Configuración de reposo.\nKV: n(Cerrando lentamente).",
+                refName: "PERIODO SUPRANORMAL", refTag: "SUPRANORMAL", refColor: "bg-purple-400 text-white",
+                refDesc: "Membrana ligeramente más excitable por la recuperación de compuertas."
+            },
+            {
+                title: "6. Restablecimiento", v: -70, m: 1, h: 0, n: 1, ca: 1, fNa: false, fK: false, fCa: false, pump: true,
+                desc: "Vuelta al estado inicial. La bomba Na/K restaura gradientes químicos.",
+                gateInfo: "Bomba Na/K: Gasto de ATP.\nGradientes listos.",
+                refName: "EXCITABILIDAD TOTAL", refTag: "BASAL", refColor: "bg-zinc-100",
+                refDesc: "Ciclo completado. Neurona lista para un nuevo estímulo."
+            }
+        ];
+
+        let currentDrug = "normal";
+        let currentIdx = 0;
+
+        function setDrug(key) {
+            currentDrug = key;
+            document.querySelectorAll('.drug-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`drug-${key}`).classList.add('active');
+            setStep(currentIdx); // Refrescar lógica del paso actual con el nuevo fármaco
+        }
+
+        function setStep(idx) {
+            currentIdx = idx;
+            const step = steps[idx];
+
+            // UI Activa
+            document.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active', 'ring-4', 'ring-black'));
+            document.getElementById(`step${idx}`).classList.add('active', 'ring-4', 'ring-black');
+
+            // Lógica de Fármacos vs Flujos
+            let finalV = step.v;
+            let flowNa = step.fNa;
+            let flowK = step.fK;
+            let flowCl = false;
+
+            if (currentDrug === 'ttx') {
+                flowNa = false; // El Na+ no entra nunca
+                if (idx > 1) finalV = -65; // El voltaje no sube si está bloqueado el Na+
+            }
+
+            if (currentDrug === 'amiodarona') {
+                if (idx >= 3) {
+                    flowK = false; // Bloqueo de salida de K+
+                    finalV = -20; // La repolarización se estanca (Meseta/Arritmia)
+                }
+            }
+
+            if (currentDrug === 'gaba') {
+                flowCl = true; // Siempre hay Cl- entrando
+                finalV = -85; // Se mantiene hiperpolarizado
+                flowNa = false; // Difícil abrir Na+ en hiperpolarización inducida
+            }
+
+            // Actualizar Datos de Voltaje
+            document.getElementById('vDisplay').innerText = `${finalV} mV`;
+            document.getElementById('stepTitle').innerText = step.title;
+            document.getElementById('stepDesc').innerText = step.desc;
+            document.getElementById('gateInfo').innerText = step.gateInfo;
+
+            // Refractariedad
+            const refTag = document.getElementById('refractoryTag');
+            refTag.innerText = step.refTag;
+            refTag.className = `text-[10px] font-black uppercase p-1 mb-2 text-center border-2 border-black ${step.refColor}`;
+            document.getElementById('refTitle').innerText = step.refName;
+            document.getElementById('refDesc').innerText = step.refDesc;
+
+            // Animación de Compuertas (Visualización molecular h/m/n)
+            document.getElementById('gateNaM').style.transform = `scaleX(${step.m})`;
+            document.getElementById('gateNaH').style.transform = `scaleX(${step.h})`;
+            document.getElementById('gateKN').style.transform = `scaleX(${step.n})`;
+            document.getElementById('gateCa').style.transform = `scaleX(${step.ca})`;
+
+            // Compuerta Cl-
+            document.getElementById('gateCl').style.transform = `scaleX(${flowCl ? 0 : 1})`;
+
+            // Flujos Animados
+            document.getElementById('naFlow').classList.toggle('hidden', !flowNa);
+            document.getElementById('kFlow').classList.toggle('hidden', !flowK);
+            document.getElementById('caFlow').classList.toggle('hidden', !step.fCa);
+            document.getElementById('clFlow').classList.toggle('hidden', !flowCl);
+
+            // Bomba Na/K
+            const pumpIcon = document.getElementById('pumpIcon');
+            if (step.pump && currentDrug !== 'gaba') {
+                pumpIcon.classList.add('pump-active');
+            } else {
+                pumpIcon.classList.remove('pump-active');
+            }
+
+            // Etiquetas de Estado Dinámicas
+            const updateSt = (id, active, text) => {
+                const el = document.getElementById(id);
+                el.innerText = active ? text : "BLOQ/CERRADO";
+                el.className = `mt-2 text-[8px] font-black uppercase p-1 w-full text-center border border-black ${active ? 'bg-green-400' : 'bg-red-400 text-white italic'}`;
+            };
+
+            updateSt('stNa', flowNa, "ENTRADA Na+");
+            updateSt('stKN', flowK, "SALIDA K+");
+
+            // Cursor Osciloscopio
+            const xCoords = [60, 100, 140, 220, 300, 380];
+            const yMap = { "-70": 160, "-55": 145, "35": 40, "-60": 180, "-90": 190, "-85": 185, "-65": 155, "-20": 100 };
+
+            // Ajuste de posición del cursor si el voltaje cambió por fármaco
+            let displayY = yMap[finalV] || 160;
+            document.getElementById('cursor').setAttribute('cx', xCoords[idx]);
+            document.getElementById('cursor').setAttribute('cy', displayY);
+        }
+
+        window.onload = () => setStep(0);
+    </script>
+</body>
+</html>

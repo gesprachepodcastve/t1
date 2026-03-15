@@ -1,0 +1,461 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neurofisiología ZV - Simulador Brutalista</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f5;
+            color: black;
+        }
+
+        .brutalist-border {
+            border: 4px solid black;
+        }
+
+        .brutalist-shadow {
+            box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+        }
+
+        .brutalist-shadow-sm {
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+        }
+
+        .brutalist-btn {
+            transition: all 0.1s ease-in-out;
+            cursor: pointer;
+        }
+
+            .brutalist-btn:active {
+                transform: translate(4px, 4px);
+                box-shadow: 0px 0px 0px 0px rgba(0,0,0,1);
+            }
+
+        .tab-active {
+            background-color: black !important;
+            color: white !important;
+        }
+
+        canvas {
+            background: white;
+            border: 4px solid black;
+        }
+
+        /* Estilos para el Triángulo de Ohm */
+        .ohm-triangle {
+            width: 70px;
+            height: 60px;
+            position: relative;
+        }
+
+        .ohm-part {
+            position: absolute;
+            font-size: 12px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid black;
+        }
+
+        .v-part {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35px;
+            height: 25px;
+            background: #ef4444;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            color: white;
+        }
+
+        .i-part {
+            bottom: 0;
+            left: 0;
+            width: 32px;
+            height: 30px;
+            background: #22c55e;
+        }
+
+        .r-part {
+            bottom: 0;
+            right: 0;
+            width: 32px;
+            height: 30px;
+            background: #3b82f6;
+            color: white;
+        }
+
+        /* Tooltip Neo-Brutalista */
+        .tooltip-container {
+            position: relative;
+        }
+
+        .tooltip-content {
+            visibility: hidden;
+            width: 250px;
+            background-color: #fde047;
+            color: black;
+            border: 3px solid black;
+            padding: 12px;
+            position: absolute;
+            z-index: 50;
+            left: 50%;
+            bottom: 125%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 6px 6px 0px 0px rgba(0,0,0,1);
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .tooltip-container:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <header class="w-full max-w-6xl mx-auto mb-8 bg-yellow-300 brutalist-border brutalist-shadow p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>
+            <h1 class="text-4xl font-black uppercase tracking-tighter italic">Neuro-Simulador ZV</h1>
+            <p class="font-bold text-black mt-1 uppercase">Fisiología de Células Excitables</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <button id="tab1" class="brutalist-border brutalist-shadow-sm px-4 py-2 font-black uppercase brutalist-btn tab-active bg-white">1. Potenciales</button>
+            <button id="tab2" class="brutalist-border brutalist-shadow-sm px-4 py-2 font-black uppercase brutalist-btn bg-white">2. Integración</button>
+            <button id="tab3" class="brutalist-border brutalist-shadow-sm px-4 py-2 font-black uppercase brutalist-btn bg-white">3. Conducción</button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+        <!-- Panel de Controles -->
+        <aside class="lg:col-span-1 space-y-6 flex flex-col">
+
+            <div id="panelContent" class="bg-white brutalist-border brutalist-shadow p-6 flex-grow">
+                <!-- Secciones dinámicas -->
+                <div id="controls1" class="space-y-4">
+                    <h3 class="font-black uppercase text-xl mb-4 bg-blue-300 p-2 brutalist-border text-center">Estimulación</h3>
+                    <p class="text-xs font-bold uppercase mb-1">Intensidad del Estímulo:</p>
+                    <input type="range" id="intensity" min="0" max="100" value="40" class="w-full h-4 bg-zinc-200 brutalist-border appearance-none cursor-pointer accent-black mb-4">
+                    <button id="btnStimulate" class="w-full py-4 bg-red-400 brutalist-border brutalist-shadow-sm font-black uppercase text-lg brutalist-btn hover:bg-red-500">
+                        ¡ESTIMULAR!
+                    </button>
+                </div>
+
+                <div id="controls2" class="space-y-4 hidden">
+                    <h3 class="font-black uppercase text-xl mb-4 bg-green-300 p-2 brutalist-border text-center">Sumación</h3>
+                    <button id="btnEPSP" class="w-full py-3 bg-green-400 brutalist-border brutalist-shadow-sm font-black uppercase brutalist-btn">+ EPSP (Excitatorio)</button>
+                    <button id="btnIPSP" class="w-full py-3 bg-purple-400 brutalist-border brutalist-shadow-sm font-black uppercase brutalist-btn">- IPSP (Inhibitorio)</button>
+                    <div class="text-[10px] font-bold mt-4 uppercase text-center italic">Suma espacial y temporal en el cono axonal</div>
+                </div>
+
+                <div id="controls3" class="space-y-4 hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-black uppercase text-lg bg-orange-300 p-2 brutalist-border flex-grow text-center mr-2">Ley de Ohm</h3>
+                        <div class="ohm-triangle">
+                            <div class="ohm-part v-part">V</div>
+                            <div class="ohm-part i-part">I</div>
+                            <div class="ohm-part r-part">R</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="tooltip-container">
+                            <button onclick="setAxonType('thin')" class="w-full py-3 px-3 bg-orange-100 brutalist-border font-bold uppercase text-xs brutalist-btn text-left flex items-center">
+                                <span class="w-4 h-4 bg-orange-500 brutalist-border mr-2"></span> Axón Delgado
+                            </button>
+                            <div class="tooltip-content">
+                                <b>ALTA RESISTENCIA (R):</b> El diámetro pequeño restringe el flujo iónico. Según I = V/R, la corriente (I) es menor y la conducción es LENTA.
+                            </div>
+                        </div>
+
+                        <div class="tooltip-container">
+                            <button onclick="setAxonType('thick')" class="w-full py-3 px-3 bg-blue-100 brutalist-border font-bold uppercase text-xs brutalist-btn text-left flex items-center">
+                                <span class="w-6 h-6 bg-blue-500 brutalist-border mr-2"></span> Axón Grueso
+                            </button>
+                            <div class="tooltip-content">
+                                <b>BAJA RESISTENCIA (R):</b> Mayor diámetro = Menor resistencia al flujo del axoplasma. Permite mayor intensidad (I) y velocidad de propagación.
+                            </div>
+                        </div>
+
+                        <div class="tooltip-container">
+                            <button onclick="setAxonType('myelin')" class="w-full py-3 px-3 bg-yellow-100 brutalist-border font-bold uppercase text-xs brutalist-btn text-left flex items-center">
+                                <span class="w-4 h-4 bg-yellow-400 brutalist-border mr-2 border-dashed"></span> Vaina Mielina
+                            </button>
+                            <div class="tooltip-content">
+                                <b>CONDUCCIÓN SALTATORIA:</b> Aumenta R de membrana y baja capacitancia. El impulso salta entre Nodos de Ranvier a máxima velocidad.
+                            </div>
+                        </div>
+                    </div>
+                    <button id="btnRace" class="w-full py-4 bg-black text-white brutalist-border brutalist-shadow-sm font-black uppercase mt-4 brutalist-btn">DISPARAR IMPULSO</button>
+                </div>
+            </div>
+
+            <!-- Monitor de Datos -->
+            <div class="bg-black text-white brutalist-border brutalist-shadow p-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-black uppercase text-yellow-300">Potencial de Membrana</span>
+                    <span id="vDisplay" class="font-black text-2xl">-70 mV</span>
+                </div>
+                <div class="w-full h-6 bg-zinc-800 brutalist-border overflow-hidden p-1">
+                    <div id="vBar" class="bg-yellow-400 h-full transition-all duration-200" style="width: 30%"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Área de Visualización -->
+        <section class="lg:col-span-3 space-y-8">
+            <div class="relative">
+                <div class="absolute -top-4 -left-4 bg-white brutalist-border px-4 py-1 font-black uppercase z-10 brutalist-shadow-sm">Modelo Celular</div>
+                <canvas id="neuronCanvas" class="w-full brutalist-shadow"></canvas>
+                <div id="statusMsg" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-8 py-4 bg-red-500 text-white brutalist-border brutalist-shadow font-black text-2xl uppercase hidden italic">¡POTENCIAL DE ACCIÓN!</div>
+            </div>
+
+            <div class="bg-white brutalist-border brutalist-shadow p-6 relative">
+                <div class="absolute -top-4 -left-4 bg-black text-white brutalist-border px-4 py-1 font-black uppercase z-10">Osciloscopio Digital</div>
+                <div class="h-48 w-full mt-2">
+                    <canvas id="graphCanvas"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="max-w-6xl mx-auto mt-12 bg-white brutalist-border brutalist-shadow flex flex-col md:flex-row items-center justify-between overflow-hidden">
+        <div class="p-6 md:p-8">
+            <h3 class="text-xl font-black uppercase italic italic">¿Listo para el examen de fisiología? 🙌</h3>
+            <p class="font-bold text-zinc-600 uppercase text-xs">Aprende la Ley de Ohm aplicada a la biofísica celular.</p>
+        </div>
+        <a href="https://chat.whatsapp.com/L1En2v5yRg98u6WRWLggnj" target="_blank" class="w-full md:w-auto bg-[#25D366] p-6 md:p-8 flex items-center justify-center gap-3 border-t-4 md:border-t-0 md:border-l-4 border-black hover:bg-white transition-all brutalist-btn group">
+            <i class="fab fa-whatsapp text-4xl group-hover:scale-110 transition-transform"></i>
+            <div class="flex flex-col">
+                <span class="font-black text-lg uppercase leading-none">Grupo de Apoyo</span>
+                <span class="font-bold text-xs opacity-80 uppercase">ZV ACADEMY</span>
+            </div>
+            <i class="fas fa-arrow-right ml-4 text-xl group-hover:translate-x-2 transition-transform"></i>
+        </a>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('neuronCanvas');
+        const ctx = canvas.getContext('2d');
+        const graphCanvas = document.getElementById('graphCanvas');
+        const gctx = graphCanvas.getContext('2d');
+
+        let width, height, currentMode = 1;
+        let voltage = -70, particles = [], voltageHistory = [];
+        let isFiring = false, waveX = -200;
+        let axonType = 'thin';
+        const REPOSO = -70, UMBRAL = -55;
+
+        function init() {
+            window.addEventListener('resize', resize);
+            resize();
+            switchMode(1);
+            animate();
+        }
+
+        function resize() {
+            width = canvas.parentElement.clientWidth;
+            height = 350;
+            canvas.width = width;
+            canvas.height = height;
+            graphCanvas.width = graphCanvas.parentElement.clientWidth;
+            graphCanvas.height = graphCanvas.parentElement.clientHeight;
+            createNeuron();
+        }
+
+        function createNeuron() {
+            particles = [];
+            const somaX = width * 0.2;
+            const somaY = height / 2;
+
+            // Soma (Aproximadamente hexagonal/brutal)
+            for (let i = 0; i < 400; i++) {
+                const a = Math.random() * Math.PI * 2, d = Math.sqrt(Math.random()) * 70;
+                particles.push({ x: somaX + Math.cos(a) * d, y: somaY + Math.sin(a) * d, type: 'soma' });
+            }
+
+            // Axón según tipo
+            const axonWidth = axonType === 'thick' ? 50 : 20;
+            for (let x = somaX + 70; x < width - 40; x += 12) {
+                for (let y = somaY - axonWidth / 2; y < somaY + axonWidth / 2; y += 10) {
+                    particles.push({ x: x, y: y + (Math.random() - 0.5) * 4, type: 'axon' });
+                }
+            }
+        }
+
+        function switchMode(m) {
+            currentMode = m;
+            document.querySelectorAll('.tab-btn, button[id^="tab"]').forEach((b, i) => b.classList.toggle('tab-active', i + 1 === m));
+            document.getElementById('controls1').classList.toggle('hidden', m !== 1);
+            document.getElementById('controls2').classList.toggle('hidden', m !== 2);
+            document.getElementById('controls3').classList.toggle('hidden', m !== 3);
+            voltage = REPOSO;
+            isFiring = false;
+            waveX = -200;
+            createNeuron();
+        }
+
+        function setAxonType(t) {
+            axonType = t;
+            createNeuron();
+        }
+
+        function triggerActionPotential() {
+            if (isFiring) return;
+            isFiring = true;
+            waveX = width * 0.2;
+            document.getElementById('statusMsg').classList.remove('hidden');
+
+            let step = 0;
+            let timer = setInterval(() => {
+                if (step < 8) voltage += 14;
+                else if (step < 25) voltage -= 8;
+                else {
+                    clearInterval(timer);
+                }
+                step++;
+            }, 30);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+
+            const somaX = width * 0.2, somaY = height / 2;
+
+            // Dibujar estructura axón base
+            ctx.lineWidth = axonType === 'thick' ? 60 : 30;
+            ctx.strokeStyle = '#e4e4e7';
+            ctx.lineCap = 'square';
+            ctx.beginPath(); ctx.moveTo(somaX, somaY); ctx.lineTo(width, somaY); ctx.stroke();
+
+            // Contorno brutalista
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(somaX - 80, somaY - 80, 160, 160); // Soma simbólico
+
+            if (axonType === 'myelin') {
+                for (let x = somaX + 100; x < width - 100; x += 150) {
+                    ctx.fillStyle = '#fde047';
+                    ctx.fillRect(x, somaY - 25, 100, 50);
+                    ctx.strokeStyle = 'black';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(x, somaY - 25, 100, 50);
+                }
+            }
+
+            particles.forEach(p => {
+                let color = '#d4d4d8';
+                let size = 2;
+
+                if (isFiring) {
+                    const dist = Math.abs(p.x - waveX);
+                    if (dist < 80) {
+                        color = '#3b82f6'; // Azul eléctrico
+                        size = 4;
+                    }
+                } else if (p.type === 'soma') {
+                    const intensity = (voltage - REPOSO) / 40;
+                    color = intensity > 0 ? '#3b82f6' : (intensity < 0 ? '#ef4444' : '#d4d4d8');
+                }
+
+                ctx.fillStyle = color;
+                // Dibujar como cuadrados para estilo brutalista
+                ctx.fillRect(p.x - size / 2, p.y - size / 2, size, size);
+            });
+
+            if (isFiring) {
+                let speed = 5;
+                if (axonType === 'thick') speed = 9;
+                if (axonType === 'myelin') speed = 18;
+                waveX += speed;
+                if (waveX > width + 150) {
+                    isFiring = false;
+                    document.getElementById('statusMsg').classList.add('hidden');
+                }
+            }
+        }
+
+        function animate() {
+            if (!isFiring) {
+                if (voltage > REPOSO) voltage -= 0.15;
+                if (voltage < REPOSO) voltage += 0.1;
+            }
+            if (currentMode === 2 && voltage >= UMBRAL) triggerActionPotential();
+
+            document.getElementById('vDisplay').innerText = `${Math.round(voltage)} mV`;
+            document.getElementById('vBar').style.width = `${((voltage + 95) / 140) * 100}%`;
+
+            draw();
+
+            voltageHistory.push(voltage);
+            if (voltageHistory.length > 500) voltageHistory.shift();
+
+            // Render Gráfico Brutalista
+            gctx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+
+            // Grid de fondo
+            gctx.strokeStyle = '#e4e4e7';
+            gctx.lineWidth = 1;
+            for (let i = 0; i < graphCanvas.width; i += 40) { gctx.beginPath(); gctx.moveTo(i, 0); gctx.lineTo(i, graphCanvas.height); gctx.stroke(); }
+            for (let i = 0; i < graphCanvas.height; i += 40) { gctx.beginPath(); gctx.moveTo(0, i); gctx.lineTo(graphCanvas.width, i); gctx.stroke(); }
+
+            // Línea de Umbral
+            const umbralY = graphCanvas.height - ((UMBRAL + 95) / 140 * graphCanvas.height);
+            gctx.strokeStyle = 'red';
+            gctx.setLineDash([5, 5]);
+            gctx.beginPath(); gctx.moveTo(0, umbralY); gctx.lineTo(graphCanvas.width, umbralY); gctx.stroke();
+            gctx.setLineDash([]);
+
+            // Línea de Voltaje
+            gctx.strokeStyle = 'black';
+            gctx.lineWidth = 4;
+            gctx.beginPath();
+            voltageHistory.forEach((v, i) => {
+                const x = i * (graphCanvas.width / 500);
+                const y = graphCanvas.height - ((v + 95) / 140 * graphCanvas.height);
+                if (i === 0) gctx.moveTo(x, y); else gctx.lineTo(x, y);
+            });
+            gctx.stroke();
+
+            requestAnimationFrame(animate);
+        }
+
+        // Handlers
+        document.getElementById('tab1').onclick = () => switchMode(1);
+        document.getElementById('tab2').onclick = () => switchMode(2);
+        document.getElementById('tab3').onclick = () => switchMode(3);
+
+        document.getElementById('btnStimulate').onclick = () => {
+            const val = document.getElementById('intensity').value;
+            voltage = REPOSO + (val * 0.3);
+            if (voltage >= UMBRAL) triggerActionPotential();
+        };
+
+        document.getElementById('btnEPSP').onclick = () => {
+            voltage += 10;
+            // Destello visual en el gráfico
+        };
+        document.getElementById('btnIPSP').onclick = () => {
+            voltage -= 8;
+        };
+
+        document.getElementById('btnRace').onclick = () => {
+            voltage = UMBRAL + 1;
+            triggerActionPotential();
+        };
+
+        init();
+    </script>
+</body>
+</html>

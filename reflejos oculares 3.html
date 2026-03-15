@@ -1,0 +1,472 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuro-Oftalmología | Physioprepas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Public Sans', sans-serif;
+            background-color: #f0f0f0;
+            color: #1a1a1a;
+        }
+
+        .brutalist-card {
+            background: white;
+            border: 4px solid black;
+            box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+        }
+
+        .brutalist-btn {
+            border: 3px solid black;
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+            transition: all 0.1s ease;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: 900;
+        }
+
+            .brutalist-btn:active {
+                transform: translate(2px, 2px);
+                box-shadow: 0px 0px 0px 0px rgba(0,0,0,1);
+            }
+
+        .active-case {
+            background-color: black !important;
+            color: white !important;
+        }
+
+        /* Efecto Hover Robusto para siglas médicas */
+        .term-hover {
+            cursor: help;
+            border-bottom: 2px dashed #3b82f6;
+            position: relative;
+            display: inline-block;
+            font-weight: 700;
+        }
+
+            .term-hover:hover::after {
+                content: attr(data-tooltip);
+                position: absolute;
+                bottom: 130%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #000;
+                color: #fff;
+                padding: 6px 12px;
+                font-size: 11px;
+                white-space: nowrap;
+                z-index: 9999;
+                border: 2px solid #facc15;
+                box-shadow: 3px 3px 0px black;
+                pointer-events: none;
+            }
+
+        .pupil {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .vision-screen {
+            height: 220px;
+            background: #000;
+            border: 3px solid black;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Envoltura visual que soporta Zoom y Filtros (Afecta Texto y Fondo) */
+        .view-wrapper {
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.5s ease;
+            transform: scale(0.65); /* Estado Lejos */
+            width: 100%;
+            height: 100%;
+        }
+
+        .near-zoom {
+            transform: scale(1.3) !important;
+        }
+        /* Estado Cerca */
+
+        /* Clases Dinámicas de Filtro (Enfermedades) */
+        .focused {
+            filter: blur(0px) brightness(1);
+        }
+
+        .blurred {
+            filter: blur(6px) brightness(1);
+        }
+
+        .dimmed {
+            filter: blur(0px) brightness(0.5);
+        }
+
+        .brightened {
+            filter: blur(0px) brightness(1.5);
+        }
+        /* Efecto Deslumbramiento/Adie */
+        .blurred-dimmed {
+            filter: blur(6px) brightness(0.5);
+        }
+
+        .blurred-brightened {
+            filter: blur(6px) brightness(1.5);
+        }
+
+        .label-eye {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: black;
+            color: white;
+            font-size: 9px;
+            padding: 2px 6px;
+            font-weight: 900;
+            z-index: 50;
+        }
+
+        .ciliary-muscle {
+            transition: all 0.4s ease;
+            fill: #ef4444;
+            stroke: black;
+            stroke-width: 2;
+        }
+
+        .muscle-contracted {
+            transform: scale(1.1) translateX(5px);
+            fill: #22c55e;
+        }
+
+        #lens {
+            transition: all 0.4s ease;
+            transform-origin: center;
+        }
+
+        .lens-near {
+            d: path("M 50 15 Q 85 50 50 85 Q 15 50 50 15");
+        }
+
+        .lens-far {
+            d: path("M 50 25 Q 65 50 50 75 Q 35 50 50 25");
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #18181b;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #facc15;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- ENCABEZADO PERSONALIZADO -->
+        <header class="bg-blue-600 p-4 brutalist-card flex justify-between items-center text-white">
+            <div>
+                <h1 class="text-3xl font-black italic uppercase tracking-tighter">GESPRACHE <span class="bg-yellow-400 text-black px-2">PODCAST VE</span></h1>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-blue-100">Physioprepas - Fisiología Neuro-Visual</p>
+            </div>
+            <div id="statusBadge" class="bg-black text-white p-2 font-black uppercase text-xs border-2 border-white">MODO: FISIOLÓGICO</div>
+        </header>
+
+        <!-- CUADRO COMPARATIVO -->
+        <div class="brutalist-card bg-white p-0">
+            <div class="bg-black text-white p-2">
+                <h2 class="text-xs font-black uppercase tracking-widest pl-2"><i class="fas fa-list-check mr-2 text-blue-400"></i> CUADRO COMPARATIVO: DINÁMICA NEURONAL</h2>
+            </div>
+            <div class="overflow-visible p-4 pb-10">
+                <table class="w-full text-[10px] text-left border-collapse border-2 border-black">
+                    <thead class="bg-zinc-100 uppercase font-black">
+                        <tr>
+                            <th class="border border-black p-2 bg-blue-50">Vía / Reflejo</th>
+                            <th class="border border-black p-2">1ª Neurona (Sensitiva)</th>
+                            <th class="border border-black p-2">Centro Integrador</th>
+                            <th class="border border-black p-2">2ª Neurona (Motora)</th>
+                            <th class="border border-black p-2">3ª Neurona / Efector</th>
+                            <th class="border border-black p-2 bg-yellow-50">Diana</th>
+                        </tr>
+                    </thead>
+                    <tbody class="font-medium">
+                        <tr class="hover:bg-zinc-50 transition-colors">
+                            <td class="border border-black p-2 font-bold">Fotomotor</td>
+                            <td class="border border-black p-2">Ganglionar (Retina/II)</td>
+                            <td class="border border-black p-2">Núcleo Pretectal</td>
+                            <td class="border border-black p-2"><span class="term-hover" data-tooltip="Núcleo de Edinger-Westphal (Parasimpático)">E-W</span> (III)</td>
+                            <td class="border border-black p-2">Ganglio Ciliar</td>
+                            <td class="border border-black p-2 font-bold text-blue-600">Esfínter del Iris</td>
+                        </tr>
+                        <tr class="hover:bg-zinc-50 transition-colors">
+                            <td class="border border-black p-2 font-bold">Midriasis (Simpática)</td>
+                            <td class="border border-black p-2">Hipotálamo Posterior</td>
+                            <td class="border border-black p-2">Cilioespinal (Budge)</td>
+                            <td class="border border-black p-2">G. Cervical Superior</td>
+                            <td class="border border-black p-2">Plexo Carotídeo / V1</td>
+                            <td class="border border-black p-2 font-bold text-red-600">M. Dilatador Iris</td>
+                        </tr>
+                        <tr class="hover:bg-zinc-50 transition-colors">
+                            <td class="border border-black p-2 font-bold">Acomodación</td>
+                            <td class="border border-black p-2">Corteza Visual (V1)</td>
+                            <td class="border border-black p-2">Núcleo Perlia/E-W</td>
+                            <td class="border border-black p-2">N. Oculomotor (III)</td>
+                            <td class="border border-black p-2">Nervios Ciliares Cortos</td>
+                            <td class="border border-black p-2 font-bold text-green-600">Músculo Ciliar</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <aside class="lg:col-span-3 space-y-4">
+                <div class="brutalist-card p-4 bg-white">
+                    <p class="font-black text-[10px] uppercase mb-3 border-b-2 border-black italic">Casos de Estudio</p>
+                    <div class="grid gap-2">
+                        <button onclick="setCase('normal')" id="btn-normal" class="p-2 text-[10px] brutalist-btn active-case text-left">Fisiológico Normal</button>
+                        <button onclick="setCase('presbyopia')" id="btn-presbyopia" class="p-2 text-[10px] brutalist-btn bg-white text-left">Presbicia (Cristalino)</button>
+                        <button onclick="setCase('horner')" id="btn-horner" class="p-2 text-[10px] brutalist-btn bg-white text-left">Sx Horner (<span class="term-hover" data-tooltip="Oculus Sinister (Ojo Izquierdo)">OS</span>)</button>
+                        <button onclick="setCase('adie')" id="btn-adie" class="p-2 text-[10px] brutalist-btn bg-white text-left">Pupila de Adie (<span class="term-hover" data-tooltip="Oculus Dexter (Ojo Derecho)">OD</span>)</button>
+                    </div>
+                </div>
+
+                <div class="brutalist-card p-4 bg-yellow-50">
+                    <p class="font-black text-[10px] uppercase mb-3 border-b-2 border-black italic">Maniobras de Examen</p>
+                    <button onclick="toggleLight()" id="btnLight" class="w-full p-3 mb-2 brutalist-btn bg-white flex justify-between items-center text-xs">
+                        <span>Luz de Diagnóstico</span> <i class="fas fa-lightbulb"></i>
+                    </button>
+                    <button onclick="toggleDistance()" id="btnDist" class="w-full p-3 brutalist-btn bg-white flex justify-between items-center text-xs">
+                        <span id="txtDist">Estado: Fijación Lejos</span> <i class="fas fa-arrows-to-eye"></i>
+                    </button>
+                </div>
+            </aside>
+
+            <main class="lg:col-span-9 space-y-6">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- OJO IZQUIERDO (OS) -->
+                    <div class="brutalist-card p-2 bg-white">
+                        <div class="vision-screen group" id="screenL">
+                            <span class="label-eye">RETRATO RETINIANO <span class="term-hover" data-tooltip="Oculus Sinister">OS</span></span>
+
+                            <div id="flashL" class="absolute inset-0 bg-yellow-200 opacity-0 pointer-events-none z-40 transition-opacity duration-300"></div>
+
+                            <div id="viewWrapL" class="view-wrapper absolute inset-0 flex items-center justify-center bg-white">
+                                <div class="absolute inset-0 bg-cover bg-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"
+                                     style="background-image: url('https://dovethemes.com/wp-content/uploads/2016/12/Eiffel-Tower-Theme.jpg');">
+                                </div>
+
+                                <div class="flex flex-col items-center group-hover:opacity-0 transition-opacity duration-500 relative z-20">
+                                    <div class="text-6xl font-black">E</div>
+                                    <div class="text-3xl font-bold"><span class="term-hover" data-tooltip="Potenciales Excitatorios Post-Sinápticos">PEPS</span></div>
+                                    <div class="text-xl font-bold">G E S P R A C H E</div>
+                                    <div class="text-[8px] mt-2 font-bold italic">PHYSIOPREPAS VE</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center p-2 border-t-2 border-black">
+                            <svg width="80" height="80" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" fill="white" stroke="black" stroke-width="3" />
+                                <circle id="irisL" cx="50" cy="50" r="34" fill="#52525b" stroke="black" stroke-width="1" />
+                                <circle id="pupilL" cx="50" cy="50" r="18" fill="black" class="pupil" />
+                            </svg>
+                            <span class="text-[9px] font-black mt-1">OJO IZQUIERDO (<span class="term-hover" data-tooltip="Oculus Sinister">OS</span>)</span>
+                        </div>
+                    </div>
+
+                    <!-- OJO DERECHO (OD) -->
+                    <div class="brutalist-card p-2 bg-white">
+                        <div class="vision-screen group" id="screenR">
+                            <span class="label-eye">RETRATO RETINIANO <span class="term-hover" data-tooltip="Oculus Dexter">OD</span></span>
+
+                            <div id="flashR" class="absolute inset-0 bg-yellow-200 opacity-0 pointer-events-none z-40 transition-opacity duration-300"></div>
+
+                            <div id="viewWrapR" class="view-wrapper absolute inset-0 flex items-center justify-center bg-white">
+                                <div class="absolute inset-0 bg-cover bg-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"
+                                     style="background-image: url('https://dovethemes.com/wp-content/uploads/2016/12/Eiffel-Tower-Theme.jpg');">
+                                </div>
+
+                                <div class="flex flex-col items-center group-hover:opacity-0 transition-opacity duration-500 relative z-20">
+                                    <div class="text-6xl font-black">E</div>
+                                    <div class="text-3xl font-bold"><span class="term-hover" data-tooltip="Potenciales Excitatorios Post-Sinápticos">PEPS</span></div>
+                                    <div class="text-xl font-bold">G E S P R A C H E</div>
+                                    <div class="text-[8px] mt-2 font-bold italic">PHYSIOPREPAS VE</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center p-2 border-t-2 border-black">
+                            <svg width="80" height="80" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" fill="white" stroke="black" stroke-width="3" />
+                                <circle id="irisR" cx="50" cy="50" r="34" fill="#52525b" stroke="black" stroke-width="1" />
+                                <circle id="pupilR" cx="50" cy="50" r="18" fill="black" class="pupil" />
+                            </svg>
+                            <span class="text-[9px] font-black mt-1">OJO DERECHO (<span class="term-hover" data-tooltip="Oculus Dexter">OD</span>)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="brutalist-card bg-zinc-900 text-white flex flex-col md:flex-row min-h-[300px]">
+                    <div class="md:w-1/3 p-6 flex flex-col items-center justify-center bg-black border-r border-zinc-700">
+                        <h4 class="text-blue-400 font-black text-[10px] uppercase mb-6 text-center">Física del Cristalino</h4>
+                        <svg width="160" height="100" viewBox="0 0 200 120">
+                            <path id="mTop" class="ciliary-muscle" d="M 30 20 Q 50 10 70 20 L 60 35 Z" />
+                            <path id="mBottom" class="ciliary-muscle" d="M 30 100 Q 50 110 70 100 L 60 85 Z" />
+                            <g transform="translate(60, 0)">
+                                <path id="lens" class="lens-far" fill="#bae6fd" stroke="white" stroke-width="2" />
+                            </g>
+                        </svg>
+                        <div id="ciliarStatus" class="mt-6 text-[9px] text-center font-bold px-3 py-2 bg-zinc-800 rounded border border-zinc-600 uppercase">
+                            Ciliar Relajado
+                        </div>
+                    </div>
+
+                    <div class="flex-1 p-6 overflow-y-auto custom-scroll">
+                        <h3 class="text-yellow-400 font-black uppercase text-sm mb-4 italic">Gesprache / Análisis de Caso</h3>
+                        <div id="pathologyText" class="text-xs leading-relaxed space-y-4 text-zinc-300">
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let lightOn = false;
+        let nearFocus = false;
+        let currentCase = 'normal';
+
+        const cases = {
+            normal: {
+                status: "FISIOLÓGICO",
+                pupilL: { dark: 20, light: 8, near: 4 },
+                pupilR: { dark: 20, light: 8, near: 4 },
+                canAcomodateL: true, canAcomodateR: true,
+                desc: `<p><strong class="text-white">Acomodación y Convergencia:</strong> Al pasar a visión de cerca (Zoom), se produce la sumación temporal de señales en el núcleo de Edinger-Westphal. El estímulo viaja por el III par hacia el ganglio ciliar.</p>
+                           <p><strong class="text-white">Triada de Cerca:</strong> Involucra miosis (esfínter pupilar), acomodación (músculo ciliar) y convergencia (rectos internos).</p>
+                           <p><span class="text-blue-400 font-bold">Instrucción:</span> Pasa el cursor por las pantallas de visión para ver el fondo dinámico y prueba alterar la fijación (Cerca/Lejos).</p>`
+            },
+            presbyopia: {
+                status: "PRESBICIA",
+                pupilL: { dark: 20, light: 8, near: 4 },
+                pupilR: { dark: 20, light: 8, near: 4 },
+                canAcomodateL: false, canAcomodateR: false,
+                desc: `<p><strong class="text-white">Fallo de la Elasticidad:</strong> Aunque el músculo ciliar se contrae correctamente (en verde), el cristalino no puede aumentar su convexidad debido a la esclerosis progresiva de su núcleo central.</p>
+                           <p><strong class="text-white">Efecto Visual:</strong> Activa la "Fijación Cerca" y notarás cómo la imagen se acerca físicamente (Zoom), pero el <span class="text-red-400 font-bold">desenfoque es inevitable</span> en ambos ojos. Pasa el cursor por las imágenes para confirmarlo.</p>`
+            },
+            horner: {
+                status: "SX HORNER (OS)",
+                pupilL: { dark: 10, light: 6, near: 4 },
+                pupilR: { dark: 24, light: 10, near: 6 },
+                canAcomodateL: true, canAcomodateR: true,
+                desc: `<p><strong class="text-white">Déficit Simpático:</strong> La miosis en <span class="term-hover" data-tooltip="Oculus Sinister">OS</span> se debe a la parálisis del músculo dilatador del iris. Nota que la asimetría (anisocoria) es máxima en la oscuridad y disminuye bajo la luz.</p>
+                           <p><strong class="text-white">Alteración Visual:</strong> La pupila estrecha permite el paso de menos luz en el OS, provocando una <span class="text-yellow-400 font-bold">disminución del brillo (opacidad)</span>, preservando la nitidez.</p>`
+            },
+            adie: {
+                status: "ADIE (OD)",
+                pupilL: { dark: 20, light: 8, near: 4 },
+                pupilR: { dark: 28, light: 26, near: 18 },
+                canAcomodateL: true, canAcomodateR: false,
+                desc: `<p><strong class="text-white">Denervación Parasimpática:</strong> En el <span class="term-hover" data-tooltip="Oculus Dexter">OD</span>, la pupila está en midriasis por daño al esfínter. Esto genera fotofobia por entrada masiva de luz.</p>
+                           <p><strong class="text-white">Efecto Visual de Brillo:</strong> Al encender la luz de diagnóstico, nota cómo el <span class="text-yellow-400 font-bold">OD se sobreilumina (deslumbramiento)</span> debido a la incapacidad miótica, mientras que el ciliar paralizado impide el enfoque de cerca.</p>`
+            }
+        };
+
+        function setCase(key) {
+            currentCase = key;
+            document.querySelectorAll('.brutalist-btn').forEach(b => b.classList.remove('active-case'));
+            const btn = document.getElementById(`btn-${key}`);
+            if (btn) btn.classList.add('active-case');
+            document.getElementById('statusBadge').innerText = `MODO: ${cases[key].status}`;
+            document.getElementById('pathologyText').innerHTML = cases[key].desc;
+            update();
+        }
+
+        function toggleLight() { lightOn = !lightOn; update(); }
+        function toggleDistance() { nearFocus = !nearFocus; update(); }
+
+        function update() {
+            const cfg = cases[currentCase];
+
+            // Lógica Pupilar
+            let sizeL = lightOn ? cfg.pupilL.light : cfg.pupilL.dark;
+            let sizeR = lightOn ? cfg.pupilR.light : cfg.pupilR.dark;
+
+            if (nearFocus) {
+                sizeL -= cfg.pupilL.near;
+                sizeR -= cfg.pupilR.near;
+
+                document.getElementById('mTop').classList.add('muscle-contracted');
+                document.getElementById('mBottom').classList.add('muscle-contracted');
+                document.getElementById('ciliarStatus').innerText = "Ciliar Contraído";
+                document.getElementById('ciliarStatus').className = "mt-6 text-[9px] text-center font-bold px-3 py-2 bg-green-900 text-green-400 rounded border border-green-600 uppercase";
+            } else {
+                document.getElementById('mTop').classList.remove('muscle-contracted');
+                document.getElementById('mBottom').classList.remove('muscle-contracted');
+                document.getElementById('ciliarStatus').innerText = "Ciliar Relajado";
+                document.getElementById('ciliarStatus').className = "mt-6 text-[9px] text-center font-bold px-3 py-2 bg-zinc-800 text-zinc-400 rounded border border-zinc-600 uppercase";
+            }
+
+            document.getElementById('pupilL').setAttribute('r', Math.max(sizeL, 4));
+            document.getElementById('pupilR').setAttribute('r', Math.max(sizeR, 4));
+            document.getElementById('flashL').style.opacity = lightOn ? "0.4" : "0";
+            document.getElementById('flashR').style.opacity = lightOn ? "0.4" : "0";
+
+            // Lógica Visual
+            const focusL = !nearFocus || (nearFocus && cfg.canAcomodateL);
+            const focusR = !nearFocus || (nearFocus && cfg.canAcomodateR);
+
+            let classesL = "view-wrapper absolute inset-0 flex items-center justify-center bg-white ";
+            let classesR = "view-wrapper absolute inset-0 flex items-center justify-center bg-white ";
+
+            if (nearFocus) {
+                classesL += "near-zoom ";
+                classesR += "near-zoom ";
+            }
+
+            // Aplicación de Filtros OS (Izquierdo)
+            if (!focusL) {
+                classesL += (currentCase === 'horner') ? "blurred-dimmed " : "blurred ";
+            } else {
+                classesL += (currentCase === 'horner') ? "dimmed " : "focused ";
+            }
+
+            // Aplicación de Filtros OD (Derecho) - Implementación de Brillo en Adie
+            if (!focusR) {
+                // Si es Adie y hay luz, aumentamos brillo incluso si está borroso
+                if (currentCase === 'adie' && lightOn) classesR += "blurred-brightened ";
+                else classesR += "blurred ";
+            } else {
+                // Caso normal o patología con enfoque conservado
+                if (currentCase === 'adie' && lightOn) classesR += "brightened ";
+                else classesR += "focused ";
+            }
+
+            document.getElementById('viewWrapL').className = classesL;
+            document.getElementById('viewWrapR').className = classesR;
+
+            const canAcomodateGlobal = (cfg.canAcomodateL || cfg.canAcomodateR);
+            document.getElementById('lens').className.baseVal = (nearFocus && canAcomodateGlobal) ? "lens-near" : "lens-far";
+
+            document.getElementById('btnLight').style.background = lightOn ? "#fef08a" : "white";
+            document.getElementById('btnDist').style.background = nearFocus ? "#bfdbfe" : "white";
+            document.getElementById('txtDist').innerText = nearFocus ? "Estado: Fijación Cerca" : "Estado: Fijación Lejos";
+        }
+
+        window.onload = () => setCase('normal');
+    </script>
+</body>
+</html>

@@ -1,0 +1,482 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZV Academy - SNA Masterclass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+
+        body {
+            font-family: 'Archivo Black', sans-serif;
+            background-color: #FFFFD2;
+            color: black;
+        }
+
+        .brutalist-card {
+            background: white;
+            border: 6px solid black;
+            box-shadow: 10px 10px 0px 0px rgba(0,0,0,1);
+        }
+
+        .brutalist-shadow-sm {
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+        }
+
+        .brutalist-btn {
+            border: 3px solid black;
+            transition: all 0.1s;
+        }
+
+            .brutalist-btn:active {
+                transform: translate(2px, 2px);
+                box-shadow: none;
+            }
+
+        .active-tab {
+            background-color: #FF8FAB !important;
+            box-shadow: none !important;
+            transform: translate(2px, 2px);
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .molecular-particle {
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+            .tab-content.active {
+                display: block;
+            }
+
+        /* Estilos específicos para la animación molecular */
+        #molecular-engine {
+            background: #0f172a;
+            min-height: 400px;
+        }
+
+        .particle-step {
+            transition: all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+            .particle-step.visible {
+                opacity: 1;
+                transform: translateY(60px);
+            }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                background-color: white;
+            }
+
+            .brutalist-card {
+                box-shadow: none;
+                border-width: 2px;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- HEADER -->
+    <header class="max-w-6xl mx-auto mb-10 brutalist-card p-6 no-print">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-[#A2D2FF] border-[4px] border-black p-3 brutalist-shadow-sm">
+                    <i class="fas fa-brain text-3xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-4xl uppercase leading-none">ZV Academy</h1>
+                    <h2 class="text-xl uppercase bg-black text-white px-2 mt-1 inline-block">SNA Masterclass</h2>
+                </div>
+            </div>
+
+            <nav class="flex flex-wrap gap-2 justify-center" id="nav-tabs">
+                <button onclick="switchTab('resumen')" id="btn-resumen" class="brutalist-btn bg-white px-4 py-3 text-sm uppercase flex items-center gap-2 brutalist-shadow-sm active-tab">
+                    <i class="fas fa-layer-group"></i> ANATOMÍA
+                </button>
+                <button onclick="switchTab('receptores')" id="btn-receptores" class="brutalist-btn bg-white px-4 py-3 text-sm uppercase flex items-center gap-2 brutalist-shadow-sm">
+                    <i class="fas fa-bolt"></i> MECANISMOS
+                </button>
+                <button onclick="switchTab('inervacion')" id="btn-inervacion" class="brutalist-btn bg-white px-4 py-3 text-sm uppercase flex items-center gap-2 brutalist-shadow-sm">
+                    <i class="fas fa-heartbeat"></i> SIMULADOR
+                </button>
+                <button onclick="switchTab('imprimir')" id="btn-imprimir" class="brutalist-btn bg-white px-4 py-3 text-sm uppercase flex items-center gap-2 brutalist-shadow-sm">
+                    <i class="fas fa-print"></i> CUADRO RESUMEN
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto">
+
+        <!-- TAB: ANATOMÍA -->
+        <div id="resumen" class="tab-content active">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <section class="brutalist-card p-8">
+                    <h3 class="text-3xl mb-6 border-b-4 border-blue-400 inline-block">SIMPÁTICO</h3>
+                    <div class="space-y-4">
+                        <div class="bg-blue-100 p-4 border-[3px] border-black">
+                            <p class="text-[10px] uppercase opacity-60">ORIGEN</p>
+                            <p class="text-xl">T1 a L2 (TORACOLUMBAR)</p>
+                        </div>
+                        <div class="bg-slate-100 p-4 border-[3px] border-black">
+                            <p class="text-[10px] uppercase opacity-60">FIBRAS</p>
+                            <p class="text-lg">PRE: CORTAS (ACh)</p>
+                            <p class="text-lg">POST: LARGAS (NOR)</p>
+                        </div>
+                        <div class="bg-[#FF8FAB] p-4 border-[3px] border-black">
+                            <p class="text-[10px] text-white uppercase">FUNCIÓN PRINCIPAL</p>
+                            <p class="text-2xl italic"> FIGHT OR FLIGHT! </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="brutalist-card p-8">
+                    <h3 class="text-3xl mb-6 border-b-4 border-red-400 inline-block">PARASIMPÁTICO</h3>
+                    <div class="space-y-4">
+                        <div class="bg-red-100 p-4 border-[3px] border-black">
+                            <p class="text-[10px] uppercase opacity-60">ORIGEN</p>
+                            <p class="text-xl">III, VII, IX, X + S2-S4</p>
+                        </div>
+                        <div class="bg-slate-100 p-4 border-[3px] border-black">
+                            <p class="text-[10px] uppercase opacity-60">FIBRAS</p>
+                            <p class="text-lg">PRE: LARGAS (ACh)</p>
+                            <p class="text-lg">POST: CORTAS (ACh)</p>
+                        </div>
+                        <div class="bg-[#BDE0FE] p-4 border-[3px] border-black">
+                            <p class="text-[10px] uppercase opacity-60">FUNCIÓN PRINCIPAL</p>
+                            <p class="text-2xl italic"> REST AND DIGEST! </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- TAB: MECANISMOS -->
+        <div id="receptores" class="tab-content">
+            <div class="brutalist-card p-8">
+                <h3 class="text-4xl mb-8 flex items-center gap-4 uppercase">
+                    <i class="fas fa-bolt text-yellow-400"></i> DINÁMICA MOLECULAR
+                </h3>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <div class="flex flex-col gap-4">
+                        <button onclick="setMechanism('Gq')" id="btn-Gq" class="mech-btn p-6 border-[4px] border-black text-left flex justify-between items-center transition-all bg-blue-400">
+                            <div>
+                                <h4 class="text-2xl font-black uppercase">Vía Proteína Gq</h4>
+                                <p class="text-sm font-bold opacity-70">Receptores: M1, M3, M5, α1</p>
+                            </div>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button onclick="setMechanism('Gi')" id="btn-Gi" class="mech-btn p-6 border-[4px] border-black text-left flex justify-between items-center transition-all bg-white brutalist-shadow-sm">
+                            <div>
+                                <h4 class="text-2xl font-black uppercase">Vía Proteína Gi</h4>
+                                <p class="text-sm font-bold opacity-70">Receptores: M2, M4, α2</p>
+                            </div>
+                            <i class="fas fa-arrow-right opacity-20"></i>
+                        </button>
+                        <button onclick="setMechanism('Gs')" id="btn-Gs" class="mech-btn p-6 border-[4px] border-black text-left flex justify-between items-center transition-all bg-white brutalist-shadow-sm">
+                            <div>
+                                <h4 class="text-2xl font-black uppercase">Vía Proteína Gs</h4>
+                                <p class="text-sm font-bold opacity-70">Receptores: β1, β2, β3, D1</p>
+                            </div>
+                            <i class="fas fa-arrow-right opacity-20"></i>
+                        </button>
+                    </div>
+
+                    <div id="molecular-engine" class="border-[4px] border-black p-6 relative overflow-hidden flex flex-col items-center justify-center rounded-none">
+                        <div class="absolute top-4 left-4 text-white text-[10px] uppercase font-mono tracking-widest opacity-40">Molecular_Engine_v2.0</div>
+
+                        <div class="relative w-full h-48 flex items-center justify-center">
+                            <!-- Membrana -->
+                            <div class="absolute top-1/2 w-full h-1 bg-white opacity-20"></div>
+
+                            <!-- Receptor -->
+                            <div id="receptor-visual" class="w-16 h-24 border-4 border-white rounded-t-full transition-all duration-500"></div>
+
+                            <!-- Cascada -->
+                            <div id="particle-container" class="absolute w-full h-full flex flex-col items-center">
+                                <!-- Generado por JS -->
+                            </div>
+
+                            <!-- Proteína G -->
+                            <div id="g-protein" class="absolute bottom-0 w-12 h-12 border-4 border-black bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]"></div>
+                        </div>
+
+                        <div class="mt-20 text-center">
+                            <p class="text-yellow-400 text-sm mb-2 uppercase">Efecto Intracelular:</p>
+                            <p id="final-effect" class="text-white text-xl uppercase italic">↑ Calcio Intracelular</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: SIMULADOR -->
+        <div id="inervacion" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-1 space-y-3">
+                    <button onclick="simulate('ojo')" class="organ-btn w-full p-4 border-[4px] border-black text-left uppercase text-xl brutalist-shadow-sm bg-white hover:bg-yellow-200">OJO</button>
+                    <button onclick="simulate('corazon')" class="organ-btn w-full p-4 border-[4px] border-black text-left uppercase text-xl brutalist-shadow-sm bg-white hover:bg-yellow-200">CORAZÓN</button>
+                    <button onclick="simulate('pulmones')" class="organ-btn w-full p-4 border-[4px] border-black text-left uppercase text-xl brutalist-shadow-sm bg-white hover:bg-yellow-200">PULMONES</button>
+                    <button onclick="simulate('digestivo')" class="organ-btn w-full p-4 border-[4px] border-black text-left uppercase text-xl brutalist-shadow-sm bg-white hover:bg-yellow-200">DIGESTIVO</button>
+                </div>
+
+                <div class="md:col-span-3">
+                    <div id="organ-details" class="hidden brutalist-card p-10 h-full">
+                        <div class="flex justify-between items-start mb-10 border-b-[4px] border-black pb-4">
+                            <h2 id="organ-name" class="text-5xl uppercase italic">OJO</h2>
+                            <i class="fas fa-stethoscope text-5xl"></i>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="border-[4px] border-black p-6 bg-blue-100 brutalist-shadow-sm">
+                                <h4 class="text-xs bg-blue-500 text-white px-2 py-1 inline-block mb-4 uppercase">Estímulo Simpático</h4>
+                                <div id="simp-efecto" class="text-3xl mb-2">MIDRIASIS</div>
+                                <div id="simp-receptor" class="text-6xl font-black opacity-10 mb-2">α1</div>
+                                <p id="simp-desc" class="text-sm italic font-bold">Contracción músculo radial</p>
+                            </div>
+
+                            <div class="border-[4px] border-black p-6 bg-red-100 brutalist-shadow-sm">
+                                <h4 class="text-xs bg-red-500 text-white px-2 py-1 inline-block mb-4 uppercase">Estímulo Parasimpático</h4>
+                                <div id="para-efecto" class="text-3xl mb-2">MIOSIS</div>
+                                <div id="para-receptor" class="text-6xl font-black opacity-10 mb-2">M3</div>
+                                <p id="para-desc" class="text-sm italic font-bold">Contracción esfínter pupilar</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="organ-placeholder" class="h-full border-[6px] border-dashed border-black flex flex-col items-center justify-center p-10 bg-white opacity-50">
+                        <i class="fas fa-mouse-pointer text-6xl mb-4 animate-bounce"></i>
+                        <p class="text-2xl uppercase">Selecciona un órgano para estimularlo</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: IMPRIMIR -->
+        <div id="imprimir" class="tab-content">
+            <div class="brutalist-card p-10">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 no-print">
+                    <h3 class="text-3xl flex items-center gap-3 uppercase">
+                        <i class="fas fa-scissors"></i> Tabla de Referencia Rápida
+                    </h3>
+                    <button onclick="window.print()" class="bg-black text-white px-6 py-3 brutalist-btn flex items-center gap-2 hover:bg-slate-800 uppercase italic">
+                        <i class="fas fa-print"></i> Imprimir DOC
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse border-[4px] border-black">
+                        <thead>
+                            <tr class="bg-black text-white">
+                                <th class="border-[3px] border-black p-3 text-left uppercase">Órgano</th>
+                                <th class="border-[3px] border-black p-3 text-left uppercase">Simpático (REC)</th>
+                                <th class="border-[3px] border-black p-3 text-left uppercase">Parasimpático (REC)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- JS inyectará filas -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="border-[3px] border-black p-4 bg-yellow-100 italic text-sm font-bold">
+                        * El receptor α2 es predominantemente PRE-SINÁPTICO e INHIBE la liberación de Noradrenalina.
+                    </div>
+                    <div class="border-[3px] border-black p-4 bg-purple-100 italic text-sm font-bold">
+                        * Los receptores M2 cardíacos están acoplados a canales de K+ por subunidades βγ de proteína Gi.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="max-w-6xl mx-auto mt-12 p-6 border-[4px] border-black bg-black text-white shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] no-print">
+        <div class="flex flex-col md:flex-row justify-between items-center text-[10px] gap-4 tracking-widest">
+            <p uppercase>© 2025 ZV ACADEMY - MATERIAL EXCLUSIVO PARA ESTUDIANTES DE MEDICINA</p>
+            <div class="flex gap-4">
+                <span class="underline">SÍNTESIS ADRENÉRGICA</span>
+                <span class="underline">SÍNTESIS COLINÉRGICA</span>
+                <span class="underline">RECEPTORES</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const mechanisms = {
+            Gq: {
+                title: "Vía Proteína Gq",
+                color: "bg-blue-400",
+                receptores: "M1, M3, M5, α1",
+                steps: ["Fosfolipasa C (PLC)", "↑ IP3 / DAG", "↑ Calcio Intracelular"],
+                shadow: "rgba(59,130,246,0.5)"
+            },
+            Gi: {
+                title: "Vía Proteína Gi",
+                color: "bg-orange-400",
+                receptores: "M2, M4, α2",
+                steps: ["Inhibe Adenilato Ciclasa", "↓ AMP cíclico (AMPc)", "Apertura canales K+"],
+                shadow: "rgba(249,115,22,0.5)"
+            },
+            Gs: {
+                title: "Vía Proteína Gs",
+                color: "bg-green-400",
+                receptores: "β1, β2, β3, D1",
+                steps: ["Activa Adenilato Ciclasa", "↑ AMP cíclico (AMPc)", "Activa PKA"],
+                shadow: "rgba(34,197,94,0.5)"
+            }
+        };
+
+        const organData = {
+            ojo: {
+                nombre: "OJO",
+                simpatico: { efecto: "MIDRIASIS", receptor: "α1", desc: "Contracción músculo radial" },
+                parasimpatico: { efecto: "MIOSIS", receptor: "M3", desc: "Contracción esfínter pupilar" }
+            },
+            corazon: {
+                nombre: "CORAZÓN",
+                simpatico: { efecto: "↑ CRONOTROPISMO", receptor: "β1", desc: "Aumento FC y Gasto" },
+                parasimpatico: { efecto: "↓ CRONOTROPISMO", receptor: "M2", desc: "Disminución FC" }
+            },
+            pulmones: {
+                nombre: "PULMONES",
+                simpatico: { efecto: "BRONCO-DILATACIÓN", receptor: "β2", desc: "Relajación músculo liso" },
+                parasimpatico: { efecto: "BRONCO-CONSTRICCIÓN", receptor: "M3", desc: "Contracción bronquial" }
+            },
+            digestivo: {
+                nombre: "S. DIGESTIVO",
+                simpatico: { efecto: "↓ MOTILIDAD", receptor: "α2, β2", desc: "Cierre esfínteres" },
+                parasimpatico: { efecto: "↑ MOTILIDAD", receptor: "M3", desc: "Secreción glandular" }
+            }
+        };
+
+        // Lógica de pestañas
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            document.querySelectorAll('#nav-tabs button').forEach(el => el.classList.remove('active-tab'));
+            document.getElementById('btn-' + tabId).classList.add('active-tab');
+        }
+
+        // Lógica de Mecanismos Moleculares
+        function setMechanism(key) {
+            const mech = mechanisms[key];
+
+            // Actualizar botones
+            document.querySelectorAll('.mech-btn').forEach(btn => {
+                btn.className = "mech-btn p-6 border-[4px] border-black text-left flex justify-between items-center transition-all bg-white brutalist-shadow-sm";
+                btn.querySelector('i').classList.add('opacity-20');
+            });
+            const activeBtn = document.getElementById('btn-' + key);
+            activeBtn.className = `mech-btn p-6 border-[4px] border-black text-left flex justify-between items-center transition-all ${mech.color}`;
+            activeBtn.querySelector('i').classList.remove('opacity-20');
+
+            // Reiniciar animación
+            const container = document.getElementById('particle-container');
+            container.innerHTML = '';
+
+            const receptor = document.getElementById('receptor-visual');
+            receptor.style.transform = "scale(1.1)";
+            receptor.style.borderColor = "#facc15";
+
+            const gProt = document.getElementById('g-protein');
+            gProt.style.backgroundColor = key === 'Gq' ? '#3b82f6' : (key === 'Gi' ? '#f97316' : '#22c55e');
+            gProt.style.boxShadow = `0 0 20px ${mech.shadow}`;
+            gProt.style.transform = "rotate(45deg)";
+
+            mech.steps.forEach((step, idx) => {
+                const el = document.createElement('div');
+                el.className = "particle-step absolute border-[3px] border-black p-2 bg-white text-[10px] whitespace-nowrap brutalist-shadow-sm font-black";
+                el.innerText = step;
+                el.style.top = `${idx * 45}px`;
+                container.appendChild(el);
+
+                setTimeout(() => {
+                    el.classList.add('visible');
+                }, idx * 250);
+            });
+
+            document.getElementById('final-effect').innerText = mech.steps[2];
+
+            setTimeout(() => {
+                receptor.style.transform = "scale(1)";
+                receptor.style.borderColor = "white";
+                gProt.style.transform = "rotate(0deg)";
+            }, 1000);
+        }
+
+        // Lógica del Simulador
+        function simulate(organId) {
+            const data = organData[organId];
+            document.getElementById('organ-placeholder').classList.add('hidden');
+            const details = document.getElementById('organ-details');
+            details.classList.remove('hidden');
+
+            document.getElementById('organ-name').innerText = data.nombre;
+            document.getElementById('simp-efecto').innerText = data.simpatico.efecto;
+            document.getElementById('simp-receptor').innerText = data.simpatico.receptor;
+            document.getElementById('simp-desc').innerText = data.simpatico.desc;
+
+            document.getElementById('para-efecto').innerText = data.parasimpatico.efecto;
+            document.getElementById('para-receptor').innerText = data.parasimpatico.receptor;
+            document.getElementById('para-desc').innerText = data.parasimpatico.desc;
+
+            // Actualizar botones de órganos
+            document.querySelectorAll('.organ-btn').forEach(btn => {
+                btn.className = "organ-btn w-full p-4 border-[4px] border-black text-left uppercase text-xl brutalist-shadow-sm bg-white hover:bg-yellow-200";
+            });
+            event.currentTarget.className = "organ-btn w-full p-4 border-[4px] border-black text-left uppercase text-xl bg-black text-white";
+        }
+
+        // Renderizar tabla
+        const tableBody = document.getElementById('table-body');
+        Object.keys(organData).forEach(key => {
+            const row = document.createElement('tr');
+            row.className = "hover:bg-slate-50 transition-colors";
+            row.innerHTML = `
+                <td class="border-[3px] border-black p-4 font-black">${organData[key].nombre}</td>
+                <td class="border-[3px] border-black p-4">
+                    <span class="bg-blue-200 px-2 border-2 border-black mr-2">${organData[key].simpatico.receptor}</span>
+                    ${organData[key].simpatico.efecto}
+                </td>
+                <td class="border-[3px] border-black p-4">
+                    <span class="bg-red-200 px-2 border-2 border-black mr-2">${organData[key].parasimpatico.receptor}</span>
+                    ${organData[key].parasimpatico.efecto}
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Iniciar con Gq visual
+        window.onload = () => setMechanism('Gq');
+
+    </script>
+</body>
+</html>

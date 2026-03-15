@@ -1,0 +1,262 @@
+﻿<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparativa PA: Espiga vs Meseta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #fafafa;
+        }
+
+        .brutalist-card {
+            border: 4px solid black;
+            box-shadow: 8px 8px 0px black;
+        }
+
+        .btn-toggle {
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 3px solid black;
+        }
+
+            .btn-toggle:active {
+                transform: translate(2px, 2px);
+                box-shadow: 0px 0px 0px black;
+            }
+
+        .active-tab {
+            background-color: black !important;
+            color: white !important;
+        }
+
+        .channel-gate {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes flow {
+            0% {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+        }
+
+        .ion-flow {
+            animation: flow 0.6s linear infinite;
+        }
+
+        .label-tag {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 2px 4px;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Título y Selector -->
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-end gap-4 border-b-8 border-black pb-4">
+            <div>
+                <h1 class="text-5xl font-black italic uppercase leading-none">Comparativa de <br><span class="text-blue-600">Excitabilidad</span></h1>
+                <p class="font-bold mt-2 uppercase text-gray-600 tracking-tighter">Dinámica de canales iónicos en tiempo real</p>
+            </div>
+
+            <div class="flex gap-2 bg-gray-200 p-2 brutalist-card">
+                <button onclick="setMode('espiga')" id="btn-espiga" class="btn-toggle px-6 py-2 font-black uppercase active-tab">PA en Espiga</button>
+                <button onclick="setMode('meseta')" id="btn-meseta" class="btn-toggle px-6 py-2 font-black uppercase bg-white">PA en Meseta</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            <!-- Visualización de Canales -->
+            <div class="lg:col-span-5 space-y-4">
+                <div class="brutalist-card bg-white p-6 relative overflow-hidden">
+                    <h2 class="font-black text-xl mb-6 uppercase border-b-2 border-black inline-block italic">Citoarquitectura de Membrana</h2>
+
+                    <div class="flex justify-around items-end h-48 relative">
+                        <!-- Canal Na+ -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-12 h-24 bg-pink-100 border-x-4 border-black relative">
+                                <div id="gate-na" class="absolute top-2 left-0 w-full h-3 bg-black channel-gate"></div>
+                                <div id="flow-na" class="hidden absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-pink-500 rounded-full ion-flow"></div>
+                            </div>
+                            <span class="label-tag mt-2 bg-pink-200">Canal Na+</span>
+                        </div>
+
+                        <!-- Canal Ca2+ (Solo Meseta) -->
+                        <div id="ca-container" class="flex flex-col items-center opacity-20">
+                            <div class="w-12 h-24 bg-orange-100 border-x-4 border-black relative">
+                                <div id="gate-ca" class="absolute top-2 left-0 w-full h-3 bg-orange-900 channel-gate"></div>
+                                <div id="flow-ca" class="hidden absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-orange-500 rounded-full ion-flow"></div>
+                            </div>
+                            <span class="label-tag mt-2 bg-orange-200">Canal Ca2+ (L)</span>
+                        </div>
+
+                        <!-- Canal K+ -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-12 h-24 bg-blue-100 border-x-4 border-black relative">
+                                <div id="gate-k" class="absolute bottom-2 left-0 w-full h-3 bg-blue-900 channel-gate"></div>
+                                <div id="flow-k" class="hidden absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-500 rounded-full ion-flow" style="animation-direction: reverse;"></div>
+                            </div>
+                            <span class="label-tag mt-2 bg-blue-200">Canal K+</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="brutalist-card bg-yellow-400 p-4">
+                    <h3 class="font-black text-sm uppercase mb-1">Diferencia Clave:</h3>
+                    <p id="info-text" class="text-sm font-medium leading-tight">El PA en espiga es extremadamente rápido (1-5ms), mediado principalmente por Na+ y K+.</p>
+                </div>
+            </div>
+
+            <!-- Gráfico y Controles -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="brutalist-card bg-white p-4 h-80 relative">
+                    <svg viewBox="0 0 500 250" class="w-full h-full overflow-visible">
+                        <!-- Grid lines -->
+                        <line x1="50" y1="200" x2="480" y2="200" stroke="#ccc" stroke-dasharray="4" />
+                        <line x1="50" y1="50" x2="480" y2="50" stroke="#ccc" stroke-dasharray="4" />
+
+                        <!-- Ejes -->
+                        <text x="10" y="205" class="text-[10px] font-bold">-70 mV</text>
+                        <text x="10" y="55" class="text-[10px] font-bold">+30 mV</text>
+
+                        <!-- Paths -->
+                        <path id="path-bg" d="" fill="none" stroke="#e5e7eb" stroke-width="4" stroke-dasharray="6" />
+                        <path id="path-active" d="" fill="none" stroke="black" stroke-width="6" />
+
+                        <!-- Cursor -->
+                        <circle id="cursor" cx="50" cy="200" r="8" fill="yellow" stroke="black" stroke-width="3" />
+                    </svg>
+                    <div id="v-badge" class="absolute top-4 right-4 bg-black text-white px-4 py-2 font-black text-2xl">-70 mV</div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+                    <button onclick="setStep(0)" id="s0" class="step-btn btn-toggle bg-white p-2 text-[10px] font-black uppercase">Reposo</button>
+                    <button onclick="setStep(1)" id="s1" class="step-btn btn-toggle bg-white p-2 text-[10px] font-black uppercase">Despol.</button>
+                    <button onclick="setStep(2)" id="s2" class="step-btn btn-toggle bg-white p-2 text-[10px] font-black uppercase">Pico</button>
+                    <button onclick="setStep(3)" id="s3" class="step-btn btn-toggle bg-white p-2 text-[10px] font-black uppercase">Fase 2</button>
+                    <button onclick="setStep(4)" id="s4" class="step-btn btn-toggle bg-white p-2 text-[10px] font-black uppercase">Final</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla Comparativa -->
+        <footer class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t-4 border-black pt-8">
+            <div class="p-4 bg-gray-100 brutalist-card">
+                <h4 class="font-black italic uppercase mb-2">Potencial en Espiga</h4>
+                <ul class="text-xs space-y-1 font-bold">
+                    <li>• Duración: 1 a 5 milisegundos.</li>
+                    <li>• Tejidos: Neuronas, músculo esquelético.</li>
+                    <li>• Iones: Na+ (entrada) y K+ (salida).</li>
+                    <li>• Función: Transmisión rápida de señales.</li>
+                </ul>
+            </div>
+            <div class="p-4 bg-orange-100 brutalist-card">
+                <h4 class="font-black italic uppercase mb-2">Potencial en Meseta</h4>
+                <ul class="text-xs space-y-1 font-bold">
+                    <li>• Duración: 200 a 300 milisegundos.</li>
+                    <li>• Tejidos: Músculo cardíaco (ventrículos).</li>
+                    <li>• Iones: Na+, Ca2+ (L) y K+.</li>
+                    <li>• Función: Evitar la tetania y permitir el llenado.</li>
+                </ul>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let currentMode = 'espiga';
+        let currentStep = 0;
+
+        const data = {
+            espiga: {
+                info: "PA en ESPIGA: El sodio entra masivamente y el potasio sale de inmediato. No hay fase de equilibrio intermedio.",
+                steps: [
+                    { v: -70, x: 50, gates: [1, 1, 1], flow: [0, 0, 0] },
+                    { v: -20, x: 80, gates: [0, 1, 1], flow: [1, 0, 0] },
+                    { v: 35, x: 100, gates: [0, 1, 0.5], flow: [1, 0, 0] },
+                    { v: -30, x: 150, gates: [1, 1, 0], flow: [0, 0, 1] },
+                    { v: -70, x: 250, gates: [1, 1, 1], flow: [0, 0, 0] }
+                ],
+                path: "M 50 200 L 80 150 L 100 45 L 150 160 L 250 200 L 450 200"
+            },
+            meseta: {
+                info: "PA en MESETA: Tras el pico de Na+, los canales de Calcio tipo L se abren, manteniendo la membrana positiva y retrasando la repolarización.",
+                steps: [
+                    { v: -70, x: 50, gates: [1, 1, 1], flow: [0, 0, 0] },
+                    { v: -20, x: 80, gates: [0, 1, 1], flow: [1, 0, 0] },
+                    { v: 30, x: 100, gates: [1, 0.5, 0.8], flow: [0, 1, 0] },
+                    { v: 10, x: 250, gates: [1, 0, 0.6], flow: [0, 1, 1] },
+                    { v: -70, x: 400, gates: [1, 1, 0], flow: [0, 0, 1] }
+                ],
+                path: "M 50 200 L 80 150 L 100 50 L 250 80 L 400 200 L 480 200"
+            }
+        };
+
+        function setMode(m) {
+            currentMode = m;
+            document.getElementById('btn-espiga').className = `btn-toggle px-6 py-2 font-black uppercase ${m === 'espiga' ? 'active-tab' : 'bg-white'}`;
+            document.getElementById('btn-meseta').className = `btn-toggle px-6 py-2 font-black uppercase ${m === 'meseta' ? 'active-tab' : 'bg-white'}`;
+
+            // Visual Ca
+            document.getElementById('ca-container').style.opacity = m === 'meseta' ? '1' : '0.2';
+            document.getElementById('info-text').innerText = data[m].info;
+
+            // Texto botones
+            document.getElementById('s3').innerText = m === 'espiga' ? 'Repol.' : 'Meseta';
+
+            document.getElementById('path-bg').setAttribute('d', data[m].path);
+            document.getElementById('path-active').setAttribute('d', data[m].path);
+
+            setStep(0);
+        }
+
+        function setStep(idx) {
+            currentStep = idx;
+            const config = data[currentMode].steps[idx];
+
+            // UI Buttons
+            document.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active-tab'));
+            document.getElementById(`s${idx}`).classList.add('active-tab');
+
+            // Voltage
+            document.getElementById('v-badge').innerText = `${config.v} mV`;
+
+            // Gates
+            document.getElementById('gate-na').style.transform = `scaleX(${config.gates[0]})`;
+            document.getElementById('gate-ca').style.transform = `scaleX(${config.gates[1]})`;
+            document.getElementById('gate-k').style.transform = `scaleX(${config.gates[2]})`;
+
+            // Flows
+            document.getElementById('flow-na').classList.toggle('hidden', !config.flow[0]);
+            document.getElementById('flow-ca').classList.toggle('hidden', !config.flow[1]);
+            document.getElementById('flow-k').classList.toggle('hidden', !config.flow[2]);
+
+            // Graph cursor
+            const y = 200 - ((config.v + 70) * (150 / 100));
+            document.getElementById('cursor').setAttribute('cx', config.x);
+            document.getElementById('cursor').setAttribute('cy', y);
+        }
+
+        window.onload = () => setMode('espiga');
+    </script>
+</body>
+</html>

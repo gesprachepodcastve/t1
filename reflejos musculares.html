@@ -1,0 +1,649 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neurofisiología y Reflejos - Medicina UCV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e5e7eb;
+            color: #111827;
+        }
+
+        .font-mono-custom {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .brutalist-card {
+            background: white;
+            border: 4px solid black;
+            box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+        }
+
+        .brutalist-btn {
+            background: #fde047;
+            border: 3px solid black;
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+            transition: all 0.1s;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+            .brutalist-btn:active {
+                transform: translate(2px, 2px);
+                box-shadow: 2px 2px 0px 0px rgba(0,0,0,1);
+            }
+
+            .brutalist-btn.active {
+                background: #4ade80;
+                color: black;
+            }
+
+        /* Top Table Styles */
+        .academic-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .academic-table th, .academic-table td {
+                border: 2px solid black;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .academic-table th {
+                background: black;
+                color: white;
+                text-transform: uppercase;
+                font-weight: 900;
+                letter-spacing: 0.05em;
+            }
+
+            .academic-table tr:nth-child(even) {
+                background: #f3f4f6;
+            }
+
+            .academic-table tr:hover {
+                background: #fef08a;
+            }
+
+        .tag-mono {
+            background: #bfdbfe;
+            color: #1e3a8a;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 900;
+            border: 1px solid black;
+        }
+
+        .tag-poli {
+            background: #e9d5ff;
+            color: #581c87;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 900;
+            border: 1px solid black;
+        }
+
+        /* SVG Animations & Pathways */
+        .pathway {
+            stroke-dasharray: 6;
+            fill: none;
+            transition: stroke-width 0.2s;
+        }
+
+        /* Action Potential moving dot */
+        .ap-dot {
+            offset-path: path(var(--path-d));
+            animation: moveAP var(--duration) linear forwards;
+            opacity: 0;
+        }
+
+        @keyframes moveAP {
+            0% {
+                offset-distance: 0%;
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            90% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
+
+            100% {
+                offset-distance: 100%;
+                opacity: 0;
+                transform: scale(0);
+            }
+        }
+
+        .synapse-effect {
+            animation: synapse-pop 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes synapse-pop {
+            0% {
+                transform: scale(0.5) translateY(0);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5) translateY(-10px);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1) translateY(-15px);
+                opacity: 0;
+            }
+        }
+
+        #leg-right, #leg-left {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #leg-right {
+            transform-origin: 280px 250px;
+        }
+
+        #leg-left {
+            transform-origin: 150px 250px;
+        }
+
+        .electro-readout {
+            background: #111827;
+            color: #34d399;
+            text-shadow: 0 0 5px #34d399;
+        }
+
+            .electro-readout.inhibitory {
+                color: #f87171;
+                text-shadow: 0 0 5px #f87171;
+            }
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- Header UCV -->
+        <header class="brutalist-card bg-white p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl md:text-5xl font-900 tracking-tighter uppercase text-black">Cátedra de Fisiología</h1>
+                <p class="text-red-600 font-black tracking-widest uppercase mt-1">Universidad Central de Venezuela - Medicina</p>
+            </div>
+            <div class="text-right">
+                <span class="bg-black text-white px-4 py-2 font-900 text-xl block border-2 border-black">MÓDULO DE REFLEJOS</span>
+                <span class="text-xs font-bold uppercase tracking-widest text-gray-500 block mt-2">Versión Académica 2.0</span>
+            </div>
+        </header>
+
+        <!-- Cuadro Resumen Superior -->
+        <section class="brutalist-card bg-white overflow-hidden">
+            <div class="bg-yellow-400 p-3 border-b-4 border-black">
+                <h2 class="text-2xl font-900 uppercase tracking-tight"><i class="fas fa-sitemap mr-2"></i> Mapa de Neuronas & Centros Integradores</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="academic-table">
+                    <thead>
+                        <tr>
+                            <th>Reflejo Clínico</th>
+                            <th>Aferente (1ª Neurona)</th>
+                            <th>Soma (Ganglio)</th>
+                            <th>Centro Integrador (Médula)</th>
+                            <th>Eferente (2ª / Múltiples)</th>
+                            <th>Receptor / Neurotransmisor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="font-bold">Rotuliano <span class="tag-mono ml-1">Monosináptico</span></td>
+                            <td>Fibra Ia (Huso Neuromuscular)</td>
+                            <td>GRD Lumbar (L2-L4)</td>
+                            <td>Asta Ventral (Lámina IX)</td>
+                            <td>Motoneurona α → N. Femoral</td>
+                            <td>AMPA/NMDA <span class="text-green-600 font-bold">(Glutamato)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">Bicipital <span class="tag-mono ml-1">Monosináptico</span></td>
+                            <td>Fibra Ia</td>
+                            <td>GRD Cervical (C5-C6)</td>
+                            <td>Asta Ventral (Lámina IX)</td>
+                            <td>Motoneurona α → N. Musculocutáneo</td>
+                            <td>AMPA/NMDA <span class="text-green-600 font-bold">(Glutamato)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">Tricipital <span class="tag-mono ml-1">Monosináptico</span></td>
+                            <td>Fibra Ia</td>
+                            <td>GRD Cervical (C7-C8)</td>
+                            <td>Asta Ventral (Lámina IX)</td>
+                            <td>Motoneurona α → N. Radial</td>
+                            <td>AMPA/NMDA <span class="text-green-600 font-bold">(Glutamato)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">Inhibición Recíproca <span class="tag-poli ml-1">Disináptico</span></td>
+                            <td>Colateral Fibra Ia</td>
+                            <td>GRD Correspondiente</td>
+                            <td>Interneurona Ia (Lámina VII)</td>
+                            <td>Inhibición de Motoneurona α Antagonista</td>
+                            <td>GlyR <span class="text-red-600 font-bold">(Glicina)</span> -> PIPS</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">Extensión Cruzada <span class="tag-poli ml-1">Polisináptico</span></td>
+                            <td>Fibras A-δ y C (Nociceptores)</td>
+                            <td>GRD Multisegmentario</td>
+                            <td>Asta Dorsal (Lám. I, II, V) → Interneuronas Comisurales</td>
+                            <td>Motoneuronas Flexoras (Ipsi) y Extensoras (Contra)</td>
+                            <td>Glutamato (Excitatorio) y Glicina/GABA (Inhibitorio)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Main Simulator Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Controles y Fisiología -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- Selector -->
+                <div class="brutalist-card bg-blue-50 p-4">
+                    <h3 class="font-900 mb-3 border-b-2 border-black pb-1 uppercase text-sm">Selección del Circuito</h3>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <button onclick="setMode('rotuliano')" id="btn-rotuliano" class="brutalist-btn p-2 text-[11px] active">Rotuliano</button>
+                        <button onclick="setMode('bicipital')" id="btn-bicipital" class="brutalist-btn p-2 text-[11px]">Bicipital</button>
+                        <button onclick="setMode('tricipital')" id="btn-tricipital" class="brutalist-btn p-2 text-[11px]">Tricipital</button>
+                        <button onclick="setMode('inhibicion')" id="btn-inhibicion" class="brutalist-btn p-2 text-[11px]">Inhibición Recíp.</button>
+                    </div>
+                    <button onclick="setMode('cruzada')" id="btn-cruzada" class="brutalist-btn p-2 text-[11px] w-full bg-red-200">Extensión Cruzada (Nociceptivo)</button>
+                </div>
+
+                <!-- Monitor Electrofisiológico -->
+                <div class="brutalist-card bg-black p-4 text-white font-mono-custom relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-2 opacity-20"><i class="fas fa-wave-square text-4xl"></i></div>
+                    <h3 class="font-bold text-xs uppercase text-yellow-400 mb-2">Registro de Membrana</h3>
+                    <div id="electro-display" class="electro-readout p-3 border border-gray-600 text-sm h-24 flex flex-col justify-center">
+                        <div>VRP: -70 mV</div>
+                        <div class="text-xs text-gray-400 mt-1">Esperando estímulo...</div>
+                    </div>
+                </div>
+
+                <!-- Fisiología Detallada -->
+                <div class="brutalist-card bg-white p-4">
+                    <h3 class="font-900 mb-2 uppercase text-xs tracking-widest border-b-2 border-black">Análisis Fisiológico</h3>
+                    <div id="physio-desc" class="text-xs leading-relaxed font-medium text-slate-800 space-y-2">
+                        <!-- Llenado por JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG Canvas -->
+            <div class="lg:col-span-8">
+                <div class="brutalist-card bg-slate-50 relative w-full h-[600px] overflow-hidden">
+
+                    <svg viewBox="0 0 800 600" class="w-full h-full" id="sim-svg">
+                        <defs>
+                            <!-- Filtros para brillo -->
+                            <filter id="glow-excitatory"><feGaussianBlur stdDeviation="3" result="coloredBlur" /><feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+                            <filter id="glow-inhibitory"><feGaussianBlur stdDeviation="3" result="coloredBlur" /><feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+                        </defs>
+
+                        <!-- Anatomía de la Pierna / Brazo Derecho (Ipsilateral) -->
+                        <g id="anatomy-right">
+                            <!-- Músculos -->
+                            <path id="muscle-agonist" d="M120 220 Q200 160 280 230" fill="#fca5a5" stroke="black" stroke-width="2" />
+                            <path id="muscle-antagonist" d="M120 280 Q200 340 280 270" fill="#fca5a5" stroke="black" stroke-width="2" />
+
+                            <!-- Hueso/Articulación -->
+                            <g id="leg-right">
+                                <line x1="280" y1="250" x2="280" y2="480" stroke="#94a3b8" stroke-width="18" stroke-linecap="round" />
+                                <line x1="280" y1="250" x2="280" y2="480" stroke="black" stroke-width="20" stroke-linecap="round" opacity="0.2" />
+                                <!-- Estímulo Doloroso -->
+                                <g id="pain-stimulus" class="hidden">
+                                    <path d="M260 490 L280 470 L300 490 Z" fill="red" stroke="black" stroke-width="2" />
+                                    <text x="290" y="470" font-size="20">🔥</text>
+                                </g>
+                            </g>
+                            <circle cx="280" cy="250" r="12" fill="white" stroke="black" stroke-width="4" />
+
+                            <!-- Etiquetas musculares -->
+                            <text id="lbl-ago" x="170" y="195" font-size="12" font-weight="900" text-anchor="middle" font-family="Inter">CUÁDRICEPS</text>
+                            <text id="lbl-ant" x="170" y="320" font-size="12" font-weight="900" text-anchor="middle" font-family="Inter">ISQUIOTIBIALES</text>
+
+                            <!-- Martillo de Reflejos -->
+                            <g id="hammer" transform="translate(290, 200) rotate(-20)">
+                                <rect x="-4" y="-30" width="8" height="60" fill="#cbd5e1" stroke="black" stroke-width="2" />
+                                <polygon points="-15,-30 15,-30 10,-10 -10,-10" fill="#ef4444" stroke="black" stroke-width="2" />
+                            </g>
+                        </g>
+
+                        <!-- Pierna Izquierda (Contralateral - Para Extensión Cruzada) -->
+                        <g id="anatomy-left" class="opacity-20" transform="translate(-160, 0)">
+                            <path id="muscle-agonist-l" d="M120 220 Q200 160 280 230" fill="#fca5a5" stroke="black" stroke-width="2" />
+                            <path id="muscle-antagonist-l" d="M120 280 Q200 340 280 270" fill="#fca5a5" stroke="black" stroke-width="2" />
+                            <g id="leg-left">
+                                <line x1="280" y1="250" x2="280" y2="480" stroke="#94a3b8" stroke-width="18" stroke-linecap="round" />
+                            </g>
+                            <circle cx="280" cy="250" r="12" fill="white" stroke="black" stroke-width="4" />
+                            <text x="170" y="195" font-size="10" font-weight="bold" text-anchor="middle">EXTENSOR (CONTRA)</text>
+                            <text x="170" y="320" font-size="10" font-weight="bold" text-anchor="middle">FLEXOR (CONTRA)</text>
+                        </g>
+
+                        <!-- MÉDULA ESPINAL (Corte Transversal Detallado) -->
+                        <g id="spinal-cord" transform="translate(450, 80)">
+                            <!-- Sustancia Blanca -->
+                            <ellipse cx="150" cy="170" rx="110" ry="140" fill="#f8fafc" stroke="black" stroke-width="4" />
+                            <!-- Fisura media anterior y surco medio posterior -->
+                            <path d="M150 30 L150 100 M145 310 L150 250 L155 310 Z" fill="#e2e8f0" stroke="black" stroke-width="2" />
+
+                            <!-- Sustancia Gris (H de Rexed) -->
+                            <path d="M145 100
+                                     C110 110, 80 80, 70 60
+                                     C60 90, 90 140, 110 160
+                                     C90 170, 60 190, 50 240
+                                     C80 250, 120 220, 140 190
+                                     C145 180, 155 180, 160 190
+                                     C180 220, 220 250, 250 240
+                                     C240 190, 210 170, 190 160
+                                     C210 140, 240 90, 230 60
+                                     C220 80, 190 110, 155 100 Z"
+                                  fill="#cbd5e1" stroke="black" stroke-width="2" />
+
+                            <!-- Etiquetas anatómicas -->
+                            <text x="80" y="50" font-size="10" font-weight="bold" fill="#475569">Asta Dorsal</text>
+                            <text x="60" y="270" font-size="10" font-weight="bold" fill="#475569">Asta Ventral (Lám IX)</text>
+                        </g>
+
+                        <!-- VÍAS NEURONALES (Paths para animaciones) -->
+                        <!-- 1. Aferente Ia (Azul) -->
+                        <path id="path-sensory" class="pathway" d="M280 230 Q350 150 480 180 Q520 180 540 140" stroke="#3b82f6" stroke-width="4" />
+                        <!-- Ganglio de la Raíz Dorsal (GRD) -->
+                        <ellipse cx="480" cy="180" rx="12" ry="8" fill="#3b82f6" stroke="black" stroke-width="2" />
+                        <text x="470" y="165" font-size="9" font-weight="bold" font-family="Inter">GRD</text>
+
+                        <!-- 2. Motoneurona Alfa Agonista (Rojo) -->
+                        <path id="path-motor-ago" class="pathway" d="M540 280 Q450 300 350 240 Q280 220 200 220" stroke="#ef4444" stroke-width="4" />
+                        <circle cx="540" cy="280" r="6" fill="#ef4444" stroke="black" stroke-width="2" /> <!-- Soma Motor -->
+                        <!-- 3. Interneurona Inhibitoria Ia (Morado) -->
+                        <path id="path-inter-inhib" class="pathway hidden" d="M540 140 Q570 190 560 250" stroke="#a855f7" stroke-width="3" />
+                        <polygon id="soma-inter-inhib" points="560,245 565,255 555,255" fill="#a855f7" stroke="black" stroke-width="1.5" class="hidden" />
+
+                        <!-- 4. Motoneurona Alfa Antagonista (Naranja) -->
+                        <path id="path-motor-ant" class="pathway hidden" d="M560 250 Q500 350 300 290 Q250 280 200 280" stroke="#f97316" stroke-width="4" />
+                        <circle id="soma-motor-ant" cx="560" cy="250" r="6" fill="#f97316" stroke="black" stroke-width="2" class="hidden" />
+
+                        <!-- 5. Vía Comisural / Extensión Cruzada (Verde) -->
+                        <path id="path-commissural" class="pathway hidden" d="M540 140 Q600 200 660 250" stroke="#10b981" stroke-width="3" />
+                        <path id="path-motor-contra" class="pathway hidden" d="M660 250 Q600 450 300 450 Q150 450 120 220" stroke="#10b981" stroke-width="4" />
+                        <circle id="soma-motor-contra" cx="660" cy="250" r="6" fill="#10b981" stroke="black" stroke-width="2" class="hidden" />
+
+                        <!-- Animaciones de Potencial de Acción (Puntos brillantes) -->
+                        <circle id="ap-sensory" r="5" fill="#60a5fa" filter="url(#glow-excitatory)" style="--path-d: path('M280 230 Q350 150 480 180 Q520 180 540 140'); --duration: 0.8s;" class="ap-dot" />
+                        <circle id="ap-motor-ago" r="5" fill="#f87171" filter="url(#glow-excitatory)" style="--path-d: path('M540 280 Q450 300 350 240 Q280 220 200 220'); --duration: 0.8s;" class="ap-dot" />
+                        <circle id="ap-inter" r="4" fill="#c084fc" filter="url(#glow-inhibitory)" style="--path-d: path('M540 140 Q570 190 560 250'); --duration: 0.4s;" class="ap-dot" />
+                        <circle id="ap-motor-ant" r="5" fill="#fb923c" filter="url(#glow-inhibitory)" style="--path-d: path('M560 250 Q500 350 300 290 Q250 280 200 280'); --duration: 0.8s;" class="ap-dot" />
+                        <circle id="ap-comm" r="4" fill="#34d399" filter="url(#glow-excitatory)" style="--path-d: path('M540 140 Q600 200 660 250'); --duration: 0.5s;" class="ap-dot" />
+                        <circle id="ap-motor-contra" r="5" fill="#34d399" filter="url(#glow-excitatory)" style="--path-d: path('M660 250 Q600 450 300 450 Q150 450 120 220'); --duration: 1s;" class="ap-dot" />
+
+                        <!-- Signos Sinápticos EPSP (+) e IPSP (-) -->
+                        <text id="syn-epsp-1" x="525" y="130" font-size="24" font-weight="900" fill="#22c55e" class="synapse-effect hidden" style="text-shadow: 0 0 4px white;">(+) Glu</text>
+                        <text id="syn-epsp-2" x="525" y="270" font-size="24" font-weight="900" fill="#22c55e" class="synapse-effect hidden" style="text-shadow: 0 0 4px white;">(+) Glu</text>
+                        <text id="syn-ipsp-1" x="545" y="240" font-size="24" font-weight="900" fill="#ef4444" class="synapse-effect hidden" style="text-shadow: 0 0 4px white;">(-) Gly</text>
+                        <text id="syn-epsp-3" x="650" y="240" font-size="24" font-weight="900" fill="#22c55e" class="synapse-effect hidden" style="text-shadow: 0 0 4px white;">(+) Glu</text>
+
+                    </svg>
+
+                    <!-- Botón de Acción Principal -->
+                    <button onclick="triggerSim()" id="btn-stimulate" class="absolute bottom-6 right-6 brutalist-btn px-8 py-4 text-2xl z-10">
+                        PERCUTIR TENDÓN <i class="fas fa-hammer ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const configData = {
+            rotuliano: {
+                title: "Reflejo Miotático Rotuliano",
+                ago: "CUÁDRICEPS", ant: "ISQUIOTIBIALES",
+                physio: `
+                    <p><b>Estímulo:</b> Estiramiento del huso neuromuscular (fibras intrafusales bolsa/cadena nuclear).</p>
+                    <p><b>Vía Aferente:</b> Fibras sensitivas tipo Ia (conducción rápida 70-120 m/s). Soma en el GRD lumbar.</p>
+                    <p><b>Centro Integrador:</b> Asta ventral (Lámina IX). Sinapsis excitatoria (PEPS) mediada por <b>Glutamato</b> sobre receptores AMPA/NMDA.</p>
+                    <p><b>Vía Eferente:</b> Motoneurona alfa → Unión neuromuscular (Acetilcolina) → Contracción del Cuádriceps.</p>
+                `,
+                btnText: "PERCUTIR TENDÓN <i class='fas fa-hammer ml-2'></i>"
+            },
+            bicipital: {
+                title: "Reflejo Miotático Bicipital",
+                ago: "BÍCEPS BRAQUIAL", ant: "TRÍCEPS",
+                physio: `
+                    <p><b>Nivel Segmentario:</b> C5 - C6. Nervio Musculocutáneo.</p>
+                    <p><b>Mecanismo:</b> Idéntico al rotuliano (monosináptico). La percusión estira las fibras intrafusales del bíceps.</p>
+                    <p><b>Electrofisiología:</b> El potencial de receptor en el huso detona potenciales de acción en la fibra Ia. En la médula se genera un PEPS directo sobre la motoneurona alfa del bíceps.</p>
+                `,
+                btnText: "PERCUTIR TENDÓN <i class='fas fa-hammer ml-2'></i>"
+            },
+            tricipital: {
+                title: "Reflejo Miotático Tricipital",
+                ago: "TRÍCEPS BRAQUIAL", ant: "BÍCEPS",
+                physio: `
+                    <p><b>Nivel Segmentario:</b> C7 - C8. Nervio Radial.</p>
+                    <p><b>Mecanismo:</b> Vía monosináptica clásica. Importante clínicamente para evaluar radiculopatías cervicales bajas.</p>
+                    <p><b>Respuesta:</b> Contracción brusca del tríceps provocando la extensión del antebrazo sobre el brazo.</p>
+                `,
+                btnText: "PERCUTIR TENDÓN <i class='fas fa-hammer ml-2'></i>"
+            },
+            inhibicion: {
+                title: "Inhibición Recíproca (Circuito Disináptico)",
+                ago: "AGONISTA (Contrae)", ant: "ANTAGONISTA (Relaja)",
+                physio: `
+                    <p><b>Fenómeno Clave:</b> Para que el agonista se contraiga eficientemente, el antagonista DEBE relajarse.</p>
+                    <p><b>Neuroanatomía:</b> Una colateral de la fibra Ia aferente hace sinapsis en la Lámina VII con la <b>Interneurona Ia Inhibitoria</b>.</p>
+                    <p><b>Electrofisiología:</b> Esta interneurona libera <b>Glicina</b>, que abre canales de Cl- en la motoneurona alfa antagonista, causando hiperpolarización (<b>PIPS</b>). El músculo antagonista se relaja.</p>
+                `,
+                btnText: "ACTIVAR CIRCUITO <i class='fas fa-bolt ml-2'></i>"
+            },
+            cruzada: {
+                title: "Reflejo de Retirada y Extensión Cruzada",
+                ago: "FLEXOR IPSI (Retirada)", ant: "EXTENSOR CONTRA (Apoyo)",
+                physio: `
+                    <p><b>Estímulo:</b> Nociceptivo (Dolor, Ej. pisar un clavo). Fibras A-delta (dolor rápido) y C (dolor lento).</p>
+                    <p><b>Circuito Polisináptico:</b> Las aferencias ingresan al Asta Dorsal (Láminas I, II, V). Se activan redes de interneuronas ipsilaterales y <b>comisurales</b> (cruzan la línea media).</p>
+                    <p><b>Doble Respuesta:</b> <br>1. Ipsilateral: Excitación de flexores (retiro del estímulo).<br>2. Contralateral: Excitación de extensores (sostén del peso corporal al levantar la pierna afectada).</p>
+                `,
+                btnText: "APLICAR DOLOR <i class='fas fa-fire ml-2 text-red-500'></i>"
+            }
+        };
+
+        let currentMode = 'rotuliano';
+        let isSimulating = false;
+
+        function setMode(mode) {
+            if(isSimulating) return;
+            currentMode = mode;
+
+            // UI Updates
+            document.querySelectorAll('.brutalist-btn').forEach(b => b.classList.remove('active', 'border-white'));
+            document.getElementById(`btn-${mode}`).classList.add('active');
+
+            const data = configData[mode];
+            document.getElementById('physio-desc').innerHTML = data.physio;
+            document.getElementById('btn-stimulate').innerHTML = data.btnText;
+            document.getElementById('lbl-ago').textContent = data.ago;
+            document.getElementById('lbl-ant').textContent = data.ant;
+
+            // SVG Element Toggling
+            const showInhib = (mode === 'inhibicion');
+            const showCross = (mode === 'cruzada');
+
+            // Toggle Interneuron pathway
+            document.getElementById('path-inter-inhib').classList.toggle('hidden', !showInhib);
+            document.getElementById('soma-inter-inhib').classList.toggle('hidden', !showInhib);
+            document.getElementById('path-motor-ant').classList.toggle('hidden', !showInhib);
+            document.getElementById('soma-motor-ant').classList.toggle('hidden', !showInhib);
+
+            // Toggle Cross pathway
+            document.getElementById('path-commissural').classList.toggle('hidden', !showCross);
+            document.getElementById('path-motor-contra').classList.toggle('hidden', !showCross);
+            document.getElementById('soma-motor-contra').classList.toggle('hidden', !showCross);
+            document.getElementById('anatomy-left').classList.toggle('opacity-20', !showCross);
+            document.getElementById('anatomy-left').classList.toggle('opacity-100', showCross);
+
+            // Toggle Stimulus Tool (Hammer vs Pain)
+            document.getElementById('hammer').classList.toggle('hidden', showCross);
+            document.getElementById('pain-stimulus').classList.toggle('hidden', !showCross);
+
+            // Pathway direct connection logic
+            if (showInhib || showCross) {
+                // Modificar el final de la vía sensitiva para que conecte a la interneurona si es necesario (simplificado visualmente)
+            }
+
+            resetOscilloscope();
+        }
+
+        function resetOscilloscope() {
+            const display = document.getElementById('electro-display');
+            display.className = 'electro-readout p-3 border border-gray-600 text-sm h-24 flex flex-col justify-center';
+            display.innerHTML = `<div>VRP: -70 mV</div><div class="text-xs text-gray-400 mt-1">Esperando estímulo...</div>`;
+        }
+
+        function updateOscilloscope(state) {
+            const display = document.getElementById('electro-display');
+            if (state === 'epsp') {
+                display.className = 'electro-readout p-3 border border-gray-600 text-sm h-24 flex flex-col justify-center bg-gray-900';
+                display.innerHTML = `
+                    <div class="text-green-400 font-bold text-lg">↑ PEPS (Glutamato)</div>
+                    <div>Despolarización: -70mV → -55mV</div>
+                    <div class="text-xs text-white mt-1 bg-green-800 px-1 inline-block">Potencial de Acción Disparado</div>
+                `;
+            } else if (state === 'ipsp') {
+                display.className = 'electro-readout p-3 border border-gray-600 text-sm h-24 flex flex-col justify-center bg-gray-900 inhibitory';
+                display.innerHTML = `
+                    <div class="text-red-400 font-bold text-lg">↓ PIPS (Glicina)</div>
+                    <div>Hiperpolarización: -70mV → -85mV</div>
+                    <div class="text-xs text-white mt-1 bg-red-800 px-1 inline-block">Inhibición de la Motoneurona</div>
+                `;
+            } else if (state === 'contract') {
+                display.innerHTML += `<div class="text-xs text-yellow-400 mt-1 border-t border-gray-600 pt-1">Contracción Muscular Efectiva</div>`;
+            }
+        }
+
+        function playAnim(id) {
+            const el = document.getElementById(id);
+            el.style.animation = 'none';
+            el.offsetHeight; /* trigger reflow */
+            el.style.animation = null;
+        }
+
+        async function triggerSim() {
+            if(isSimulating) return;
+            isSimulating = true;
+
+            const mode = currentMode;
+
+            // 1. Estímulo (Martillo o Dolor)
+            if(mode !== 'cruzada') {
+                const hammer = document.getElementById('hammer');
+                hammer.style.transition = 'transform 0.1s';
+                hammer.style.transform = 'translate(290px, 200px) rotate(-40deg)';
+                setTimeout(() => hammer.style.transform = 'translate(290px, 200px) rotate(-20deg)', 150);
+            } else {
+                const pain = document.getElementById('pain-stimulus');
+                pain.style.transform = 'scale(1.2)';
+                setTimeout(() => pain.style.transform = 'scale(1)', 200);
+            }
+
+            // 2. Vía Sensitiva Aferente
+            setTimeout(() => { playAnim('ap-sensory'); }, 100);
+
+            // 3. Sinapsis Central y Respuesta Electrofisiológica
+            await new Promise(r => setTimeout(r, 900)); // Tiempo de viaje aferente
+
+            // Primera sinapsis (Excitatoria en Asta Dorsal o Ventral)
+            document.getElementById('syn-epsp-1').classList.remove('hidden');
+            playAnim('syn-epsp-1');
+
+            if(mode === 'rotuliano' || mode === 'bicipital' || mode === 'tricipital') {
+                updateOscilloscope('epsp');
+                playAnim('ap-motor-ago');
+                document.getElementById('syn-epsp-2').classList.remove('hidden');
+                playAnim('syn-epsp-2');
+
+                await new Promise(r => setTimeout(r, 800)); // Viaje motor
+                updateOscilloscope('contract');
+
+                // Respuesta Motora Mecánica
+                let rot = (mode === 'bicipital') ? -35 : -45;
+                document.getElementById('leg-right').style.transform = `rotate(${rot}deg)`;
+                document.getElementById('muscle-agonist').setAttribute('fill', '#4ade80');
+
+            } else if(mode === 'inhibicion') {
+                updateOscilloscope('epsp'); // Activa interneurona
+                playAnim('ap-inter');
+                playAnim('ap-motor-ago'); // También excita al agonista
+
+                await new Promise(r => setTimeout(r, 400));
+
+                // Sinapsis de la interneurona inhibitoria
+                document.getElementById('syn-ipsp-1').classList.remove('hidden');
+                playAnim('syn-ipsp-1');
+                updateOscilloscope('ipsp'); // Lee PIPS
+
+                // No hay AP en la motoneurona antagonista (está inhibida)
+                // Se mueve la pierna porque el agonista sí se contrae
+                await new Promise(r => setTimeout(r, 400));
+                document.getElementById('leg-right').style.transform = `rotate(-45deg)`;
+                document.getElementById('muscle-agonist').setAttribute('fill', '#4ade80');
+                document.getElementById('muscle-antagonist').setAttribute('fill', '#cbd5e1'); // Grisáceo = Relajado
+
+            } else if(mode === 'cruzada') {
+                updateOscilloscope('epsp');
+                playAnim('ap-motor-ago'); // Flexor ipsi se excita para retirar
+                playAnim('ap-comm'); // Vía cruzada
+
+                await new Promise(r => setTimeout(r, 500));
+
+                document.getElementById('syn-epsp-3').classList.remove('hidden');
+                playAnim('syn-epsp-3');
+                playAnim('ap-motor-contra'); // Extensor contralateral se excita
+
+                await new Promise(r => setTimeout(r, 1000));
+
+                // Respuesta Mecánica Compleja
+                document.getElementById('leg-right').style.transform = `rotate(50deg)`; // Retirada (Flexión)
+                document.getElementById('muscle-agonist').setAttribute('fill', '#4ade80'); // Flexor
+
+                document.getElementById('leg-left').style.transform = `rotate(-30deg)`; // Apoyo (Extensión)
+                document.getElementById('muscle-agonist-l').setAttribute('fill', '#4ade80'); // Extensor contra
+            }
+
+            // RESET
+            setTimeout(() => {
+                document.getElementById('leg-right').style.transform = `rotate(0deg)`;
+                document.getElementById('leg-left').style.transform = `rotate(0deg)`;
+                document.getElementById('muscle-agonist').setAttribute('fill', '#fca5a5');
+                document.getElementById('muscle-antagonist').setAttribute('fill', '#fca5a5');
+                document.getElementById('muscle-agonist-l').setAttribute('fill', '#fca5a5');
+                document.getElementById('muscle-antagonist-l').setAttribute('fill', '#fca5a5');
+
+                document.querySelectorAll('.synapse-effect').forEach(el => el.classList.add('hidden'));
+
+                resetOscilloscope();
+                isSimulating = false;
+            }, 2500);
+        }
+
+        // Init
+        window.onload = () => setMode('rotuliano');
+    </script>
+</body>
+</html>
