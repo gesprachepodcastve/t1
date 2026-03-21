@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Vía Visual Pro | Physioprepas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos Generales Brutalistas */
+        .brutalist-card { background: white; border: 4px solid black; box-shadow: 8px 8px 0px 0px #000; }
+        .brutalist-btn { border: 3px solid black; box-shadow: 4px 4px 0px 0px #000; transition: 0.1s; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+        .brutalist-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px #000; }
+        
+        /* Efecto de Visión de Paciente (visual-1) */
+        .vision-container { position: relative; overflow: hidden; border: 4px solid black; height: 300px; background: #eee; }
+        .vision-img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.2); }
+        .vision-overlay { 
+            position: absolute; inset: 0; pointer-events: none; transition: all 0.5s ease;
+            background: transparent;
+        }
+
+        /* Tipos de filtros de visión */
+        .v-normal { background: transparent; }
+        .v-anopsia-der { background: linear-gradient(to right, transparent 50%, black 50%); }
+        .v-bitemporal { background: radial-gradient(circle, transparent 30%, black 70%); }
+        .v-homonima-izq { background: linear-gradient(to left, transparent 50%, black 50%); }
+
+        /* Estilos Retina y Tooltips (visual-1) */
+        .layer-node { border: 2px solid black; padding: 4px; margin-bottom: 4px; font-size: 10px; font-weight: bold; transition: 0.3s; }
+        .layer-node:hover { background: #facc15; transform: scale(1.02); }
+        .bio-info { display: none; position: absolute; background: black; color: #4ade80; padding: 10px; border: 2px solid #4ade80; width: 250px; z-index: 100; font-family: monospace; font-size: 11px; }
+        .cell-trigger:hover + .bio-info { display: block; }
+
+        /* Estilos y Animaciones de Vías y Fotón (visual4) */
+        @keyframes flow { from { stroke-dashoffset: 20; } to { stroke-dashoffset: 0; } }
+        .active-path { stroke-dasharray: 5; animation: flow 1s linear infinite; stroke: #facc15; }
+        
+        .lesion-btn { background: #fee2e2; border-color: #ef4444; }
+        .lesion-btn:hover { background: #fca5a5; }
+        
+        .field-vision { transition: all 0.3s ease; }
+        .blind-spot { fill: black !important; }
+        
+        @keyframes photonPath {
+            0% { transform: translateY(0); opacity: 1; }
+            80% { transform: translateY(180px); opacity: 1; }
+            100% { transform: translateY(180px); opacity: 0; }
+        }
+        .photon-anim { animation: photonPath 1.5s ease-out forwards; }
+    </style>
+</head>
+<body class="p-6 bg-zinc-100 font-sans">
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <header class="bg-indigo-700 p-6 brutalist-card text-white flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-4xl font-black italic uppercase">Simulador de Vía Visual Pro</h1>
+                <p class="font-bold text-indigo-300">BIOQUÍMICA, VÍAS NEUROLÓGICAS Y CAMPIMETRÍA CLÍNICA</p>
+            </div>
+            <div id="statusBadge" class="bg-black text-yellow-400 p-3 font-black uppercase text-sm border-2 border-white text-center">
+                ESTADO: FISIOLÓGICO NORMAL
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <div class="lg:col-span-6 space-y-4">
+                <div class="brutalist-card p-6 h-full flex flex-col">
+                    <h2 class="text-xl font-black mb-4 uppercase">1. Visión del Paciente</h2>
+                    <p class="text-xs mb-4 font-bold text-zinc-600 italic">Pasa el mouse sobre la imagen para ver el defecto tras seleccionar una opción.</p>
+                    
+                    <div class="vision-container group mb-4" id="mainVision">
+                        <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80" alt="Paisaje" class="vision-img">
+                        <div id="visionFilter" class="vision-overlay"></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="changeVision('v-normal', 'Visión Normal')" class="p-2 brutalist-btn bg-white text-[10px]">Normal</button>
+                        <button onclick="changeVision('v-anopsia-der', 'Anopsia Der.')" class="p-2 brutalist-btn bg-red-100 text-[10px]">N. Óptico Der.</button>
+                        <button onclick="changeVision('v-bitemporal', 'Hem. Bitemporal')" class="p-2 brutalist-btn bg-red-100 text-[10px]">Quiasma (Túnel)</button>
+                        <button onclick="changeVision('v-homonima-izq', 'Hem. Homónima')" class="p-2 brutalist-btn bg-red-100 text-[10px]">Cintilla Der.</button>
+                    </div>
+
+                    <div class="mt-4 p-4 bg-zinc-900 text-white rounded">
+                        <h3 class="text-yellow-400 font-black uppercase text-xs mb-1">Diagnóstico Subjetivo:</h3>
+                        <div id="diagTitle" class="text-lg font-black italic">VISIÓN NORMAL</div>
+                        <p id="diagDesc" class="text-xs mt-2 text-zinc-400">El campo visual está completo. Los fotorreceptores captan la luz y la envían sin interrupciones.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-6 space-y-4">
+                <div class="brutalist-card p-6 h-full flex flex-col">
+                    <h2 class="text-xl font-black mb-4 uppercase">2. Esquema de Tractos y Hemianopsias</h2>
+                    
+                    <div class="relative w-full flex justify-center flex-1 bg-white border-2 border-black p-2 mb-4">
+                        <svg viewBox="0 0 400 300" class="w-[90%]">
+                            <g transform="translate(95, 0) scale(0.5)">
+                                <path id="fieldL_Left" d="M 50 0 A 50 50 0 0 0 50 100 Z" fill="#bae6fd" class="field-vision"/>
+                                <path id="fieldL_Right" d="M 50 0 A 50 50 0 0 1 50 100 Z" fill="#fecaca" class="field-vision"/>
+                                <circle cx="50" cy="50" r="50" fill="none" stroke="black" stroke-width="4"/>
+                            </g>
+                            <g transform="translate(255, 0) scale(0.5)">
+                                <path id="fieldR_Left" d="M 50 0 A 50 50 0 0 0 50 100 Z" fill="#bae6fd" class="field-vision"/>
+                                <path id="fieldR_Right" d="M 50 0 A 50 50 0 0 1 50 100 Z" fill="#fecaca" class="field-vision"/>
+                                <circle cx="50" cy="50" r="50" fill="none" stroke="black" stroke-width="4"/>
+                            </g>
+
+                            <circle cx="120" cy="80" r="25" fill="white" stroke="black" stroke-width="3"/>
+                            <text x="110" y="85" font-size="12" font-weight="bold">OI</text>
+                            <circle cx="280" cy="80" r="25" fill="white" stroke="black" stroke-width="3"/>
+                            <text x="270" y="85" font-size="12" font-weight="bold">OD</text>
+
+                            <path id="path_ON_L" d="M 120 105 L 120 170" fill="none" stroke="#ccc" stroke-width="6"/>
+                            <path id="path_ON_R" d="M 280 105 L 280 170" fill="none" stroke="#ccc" stroke-width="6"/>
+                            
+                            <path id="path_Chiasm_Cross1" d="M 120 170 L 280 200" fill="none" stroke="#ccc" stroke-width="4"/>
+                            <path id="path_Chiasm_Cross2" d="M 280 170 L 120 200" fill="none" stroke="#ccc" stroke-width="4"/>
+                            <path id="path_Chiasm_Uncross_L" d="M 110 170 L 110 200" fill="none" stroke="#ccc" stroke-width="4"/>
+                            <path id="path_Chiasm_Uncross_R" d="M 290 170 L 290 200" fill="none" stroke="#ccc" stroke-width="4"/>
+
+                            <path id="path_Tract_L" d="M 115 200 L 115 240" fill="none" stroke="#ccc" stroke-width="6"/>
+                            <path id="path_Tract_R" d="M 285 200 L 285 240" fill="none" stroke="#ccc" stroke-width="6"/>
+
+                            <rect x="95" y="240" width="40" height="20" fill="black"/>
+                            <rect x="265" y="240" width="40" height="20" fill="black"/>
+                            <path id="path_Rad_R" d="M 285 260 Q 350 280 285 300" fill="none" stroke="#ccc" stroke-width="6"/>
+                            <text x="310" y="255" font-size="10" font-weight="bold">NGL (Tálamo)</text>
+                        </svg>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        <button onclick="setLesion('normal')" class="p-2 brutalist-btn bg-white text-black text-[9px]">Normal</button>
+                        <button onclick="setLesion('n_optico_der')" class="p-2 brutalist-btn lesion-btn text-black text-[9px]">N. Óptico (Der)</button>
+                        <button onclick="setLesion('quiasma')" class="p-2 brutalist-btn lesion-btn text-black text-[9px]">Quiasma</button>
+                        <button onclick="setLesion('tracto_der')" class="p-2 brutalist-btn lesion-btn text-black text-[9px]">Tracto Óptico (Der)</button>
+                        <button onclick="setLesion('corteza_der')" class="p-2 brutalist-btn lesion-btn text-black text-[9px]">Corteza (Der)</button>
+                    </div>
+                    <div id="clinicaDesc" class="mt-4 text-[11px] font-medium bg-red-50 p-3 border-2 border-red-200">
+                        Selecciona un nivel de lesión neurológica para observar los defectos resultantes.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <div class="brutalist-card p-6">
+                <h2 class="text-lg font-black uppercase border-b-4 border-black mb-4">3. Bioquímica de la Fototransducción</h2>
+                <p class="text-[10px] font-bold mb-4 italic">Pasa el mouse sobre la Rodopsina morada para ver el proceso químico:</p>
+                
+                <div class="relative flex justify-center p-8 bg-blue-50 border-2 border-black rounded h-64 items-center">
+                    <svg width="150" height="200" viewBox="0 0 100 200">
+                        <rect x="25" y="10" width="50" height="100" fill="#ddd" stroke="black" stroke-width="3" />
+                        <line x1="30" y1="30" x2="70" y2="30" stroke="black" stroke-width="2" />
+                        <circle cx="50" cy="30" r="8" fill="#7e22ce" class="cell-trigger cursor-help" />
+                        <div class="bio-info" style="left: 140px; top: 10px;">
+                            <strong>CASCADA QUÍMICA:</strong><br><br>
+                            1. Fotón golpea <strong>11-cis-retinal</strong>.<br>
+                            2. Cambio a <strong>Todo-trans-retinal</strong>.<br>
+                            3. Activación de <strong>Metarrodopsina II</strong>.<br>
+                            4. La <strong>Transducina</strong> activa PDE.<br>
+                            5. PDE degrada <strong>GMPc</strong>.<br>
+                            6. Cierre de canales Na+.<br>
+                            7. <span class="text-white">HIPERPOLARIZACIÓN (-70mV)</span>.
+                        </div>
+                        
+                        <line x1="30" y1="50" x2="70" y2="50" stroke="black" stroke-width="2" />
+                        <line x1="30" y1="70" x2="70" y2="70" stroke="black" stroke-width="2" />
+                        
+                        <rect x="35" y="110" width="30" height="60" fill="#fef08a" stroke="black" stroke-width="2" />
+                        <circle cx="50" cy="140" r="8" fill="black" /> 
+                        <path d="M 50 170 L 50 200 L 40 200 M 50 200 L 60 200" stroke="black" stroke-width="3" fill="none" />
+                    </svg>
+                    <div class="absolute bottom-2 right-2 text-[9px] font-bold bg-black text-white px-2">ANATOMÍA DEL BASTÓN</div>
+                </div>
+            </div>
+
+            <div class="brutalist-card p-6 bg-white">
+                <h2 class="text-lg font-black uppercase border-b-4 border-black mb-4">4. Trayecto de la Luz en las 10 Capas</h2>
+                
+                <div class="relative w-full bg-blue-50 border-2 border-black p-2 flex h-48">
+                    <div id="photon" class="absolute left-1/2 w-4 h-4 bg-yellow-400 rounded-full border border-black z-50 opacity-0" style="top: 10px; margin-left: -8px;"></div>
+                    
+                    <div class="flex-1 flex flex-col text-[8px] font-bold uppercase justify-between">
+                        <div class="bg-indigo-100 p-1 border border-indigo-300">10. Limitante Interna</div>
+                        <div class="bg-indigo-200 p-1 border border-indigo-400">9. Fibras del Nervio Óptico</div>
+                        <div class="bg-purple-200 p-1 border border-purple-400">8. Células Ganglionares</div>
+                        <div class="bg-purple-100 p-1 border border-purple-300">7. Plexiforme Interna</div>
+                        <div class="bg-pink-200 p-1 border border-pink-400">6. Nuclear Interna (Bipolares)</div>
+                        <div class="bg-pink-100 p-1 border border-pink-300">5. Plexiforme Externa</div>
+                        <div class="bg-yellow-200 p-1 border border-yellow-400">4. Nuclear Externa</div>
+                        <div class="bg-yellow-100 p-1 border border-yellow-300">3. Limitante Externa</div>
+                        <div class="bg-red-200 p-1 border border-red-400 font-black">2. Fotorreceptores</div>
+                        <div class="bg-zinc-800 text-white p-1 border border-black">1. Epitelio Pigmentario</div>
+                    </div>
+                </div>
+                
+                <button onclick="triggerPhototransduction()" class="w-full p-2 mt-2 brutalist-btn bg-yellow-300 hover:bg-yellow-400 text-xs">¡Disparar Fotón de Luz!</button>
+                <div id="retinaLog" class="mt-2 p-2 bg-black text-green-400 font-mono text-[9px] h-20 overflow-y-auto">
+                    > Esperando estímulo lumínico...
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <div class="lg:col-span-4 brutalist-card p-6 bg-white">
+                <h2 class="text-lg font-black uppercase border-b-4 border-black mb-4">Detalle Histológico</h2>
+                <div class="flex flex-col">
+                    <div class="text-[9px] text-center mb-2 font-black text-blue-600 italic">--- LA LUZ ENTRA POR AQUÍ ---</div>
+                    
+                    <div class="layer-node bg-indigo-50">10. Membrana Limitante Interna</div>
+                    <div class="layer-node bg-indigo-100">9. Fibras del Nervio Óptico</div>
+                    <div class="layer-node bg-indigo-200">8. Capa Ganglionar</div>
+                    <div class="layer-node bg-purple-100">7. Plexiforme Interna</div>
+                    <div class="layer-node bg-purple-200 text-white">6. Nuclear Interna</div>
+                    <div class="layer-node bg-pink-100">5. Plexiforme Externa</div>
+                    <div class="layer-node bg-yellow-100">4. Nuclear Externa</div>
+                    <div class="layer-node bg-yellow-200">3. Membrana Limitante Externa</div>
+                    <div class="layer-node bg-red-400 text-white">2. Capa de Fotorreceptores</div>
+                    <div class="layer-node bg-zinc-800 text-white">1. Epitelio Pigmentario</div>
+                    
+                    <div class="text-[9px] text-center mt-2 font-black text-red-600 italic">--- TRANSDUCCIÓN ---</div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8 brutalist-card p-6 flex flex-col justify-center">
+                <h2 class="text-xl font-black uppercase mb-4 text-center">Cuadro Clínico de Relevo Neuronal</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm border-4 border-black text-center">
+                        <tr class="bg-black text-white uppercase">
+                            <th class="p-3 border border-zinc-700">Neurona</th>
+                            <th class="p-3 border border-zinc-700">Tipo Celular</th>
+                            <th class="p-3 border border-zinc-700">Función Clave</th>
+                        </tr>
+                        <tr>
+                            <td class="p-3 border border-black font-bold bg-zinc-100 italic">1ª Neurona</td>
+                            <td class="p-3 border border-black font-semibold">Célula Bipolar</td>
+                            <td class="p-3 border border-black text-xs text-left">Conecta el fotorreceptor con la ganglionar. Modula el contraste.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 border border-black font-bold bg-zinc-100 italic">2ª Neurona</td>
+                            <td class="p-3 border border-black font-semibold">Célula Ganglionar</td>
+                            <td class="p-3 border border-black text-xs text-left">Sus axones forman el nervio óptico y transmiten el potencial de acción.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 border border-black font-bold bg-yellow-200 italic">3ª Neurona</td>
+                            <td class="p-3 border border-black font-semibold">NGL (Tálamo)</td>
+                            <td class="p-3 border border-black text-xs text-left">Núcleo Geniculado Lateral. Filtra y organiza la información visual.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 border border-black font-bold bg-zinc-100 italic">4ª Neurona</td>
+                            <td class="p-3 border border-black font-semibold">Corteza Visual</td>
+                            <td class="p-3 border border-black text-xs text-left">Área 17 de Brodmann (Lóbulo occipital). Procesamiento consciente.</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        /* =========================================
+           SCRIPTS DEL MÓDULO 1 (Filtros de Visión)
+           ========================================= */
+        function changeVision(filterClass, name) {
+            const filter = document.getElementById('visionFilter');
+            const title = document.getElementById('diagTitle');
+            const desc = document.getElementById('diagDesc');
+
+            filter.className = 'vision-overlay ' + filterClass;
+            title.innerText = name;
+
+            const descriptions = {
+                'v-normal': 'El campo visual está completo. Los fotorreceptores captan la luz y la envían sin interrupciones.',
+                'v-anopsia-der': 'Ceguera total del ojo derecho. Típico de sección traumática del nervio óptico.',
+                'v-bitemporal': 'Pérdida de visión periférica (campos temporales). Causada por compresión del quiasma.',
+                'v-homonima-izq': 'Pérdida del campo visual izquierdo. Lesión post-quiasmática en la cintilla derecha.'
+            };
+            desc.innerText = descriptions[filterClass];
+        }
+
+        /* =========================================
+           SCRIPTS DEL MÓDULO 2 (Esquema y Tractos)
+           ========================================= */
+        const lesions = {
+            normal: {
+                title: "FISIOLÓGICO NORMAL",
+                desc: "Campos visuales intactos. Las vías se cruzan normalmente en el quiasma.",
+                fields: { lL: false, lR: false, rL: false, rR: false }
+            },
+            n_optico_der: {
+                title: "ANOPSIA MONOCULAR DERECHA",
+                desc: "<span class='text-red-600 font-bold'>Lesión: Nervio Óptico Derecho.</span><br>Pérdida total de aferencia del ojo derecho (amaurosis).",
+                fields: { lL: false, lR: false, rL: true, rR: true }
+            },
+            quiasma: {
+                title: "HEMIANOPSIA BITEMPORAL",
+                desc: "<span class='text-red-600 font-bold'>Lesión: Quiasma Óptico.</span><br>Se interrumpen las fibras que cruzan (nasales). Se pierde la periferia (Visión de túnel).",
+                fields: { lL: true, lR: false, rL: false, rR: true }
+            },
+            tracto_der: {
+                title: "HEMIANOPSIA HOMÓNIMA IZQ.",
+                desc: "<span class='text-red-600 font-bold'>Lesión: Tracto Óptico Derecho.</span><br>Se daña la vía que lleva la información del campo visual izquierdo de ambos ojos.",
+                fields: { lL: true, lR: false, rL: true, rR: false }
+            },
+            corteza_der: {
+                title: "HEM. HOMÓNIMA IZQ. (CORTEZA)",
+                desc: "<span class='text-red-600 font-bold'>Lesión: Corteza/Radiaciones Derechas.</span><br>Falla el campo izquierdo, suele haber preservación de la visión central (macular).",
+                fields: { lL: true, lR: false, rL: true, rR: false }
+            }
+        };
+
+        function setLesion(type) {
+            const data = lesions[type];
+            document.getElementById('statusBadge').innerText = `ESTADO: ${data.title}`;
+            document.getElementById('clinicaDesc').innerHTML = data.desc;
+
+            // Actualizar SVG de Campos Visuales
+            document.getElementById('fieldL_Left').classList.toggle('blind-spot', data.fields.lL);
+            document.getElementById('fieldL_Right').classList.toggle('blind-spot', data.fields.lR);
+            document.getElementById('fieldR_Left').classList.toggle('blind-spot', data.fields.rL);
+            document.getElementById('fieldR_Right').classList.toggle('blind-spot', data.fields.rL);
+
+            // Resaltar tractos dañados
+            const paths = ['path_ON_L','path_ON_R','path_Chiasm_Cross1','path_Chiasm_Cross2','path_Chiasm_Uncross_L','path_Chiasm_Uncross_R','path_Tract_L','path_Tract_R','path_Rad_R'];
+            paths.forEach(id => document.getElementById(id).style.stroke = '#ccc'); // Reset
+            
+            if(type === 'n_optico_der') document.getElementById('path_ON_R').style.stroke = 'red';
+            if(type === 'quiasma') {
+                document.getElementById('path_Chiasm_Cross1').style.stroke = 'red';
+                document.getElementById('path_Chiasm_Cross2').style.stroke = 'red';
+            }
+            if(type === 'tracto_der') document.getElementById('path_Tract_R').style.stroke = 'red';
+            if(type === 'corteza_der') document.getElementById('path_Rad_R').style.stroke = 'red';
+        }
+
+        /* =========================================
+           SCRIPTS DEL MÓDULO 3 (Fototransducción)
+           ========================================= */
+        function triggerPhototransduction() {
+            const photon = document.getElementById('photon');
+            const log = document.getElementById('retinaLog');
+            
+            photon.classList.remove('photon-anim');
+            void photon.offsetWidth; 
+            photon.classList.add('photon-anim');
+
+            log.innerHTML = `> ⚡ LUZ ENTRANTE (Atraviesa las capas primero)<br>> <span class="text-white">Llega a la Capa 2 (Fotorreceptores)</span><br>> Fotoisomerización del Retinal<br>> Activación de Metarrodopsina II y Transducina<br>> <span class="text-red-400">HIPERPOLARIZACIÓN del Fotorreceptor (-70mV)</span><br>> <span class="text-yellow-400">Potencial de Acción viaja por N. Óptico</span>`;
+        }
+
+        // Inicializar el estado normal al cargar
+        setLesion('normal');
+    </script>
+</body>
+</html>
