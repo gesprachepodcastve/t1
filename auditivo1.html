@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuro-Audiología | Physioprepas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Public Sans', sans-serif;
+            background-color: #f0f0f0;
+            color: #1a1a1a;
+        }
+
+        .brutalist-card {
+            background: white;
+            border: 4px solid black;
+            box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+        }
+
+        .brutalist-btn {
+            border: 3px solid black;
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+            transition: all 0.1s ease;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: 900;
+        }
+
+        .brutalist-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px 0px rgba(0,0,0,1);
+        }
+
+        .active-case {
+            background-color: black !important;
+            color: white !important;
+        }
+
+        .term-hover {
+            cursor: help;
+            border-bottom: 2px dashed #3b82f6;
+            position: relative;
+            display: inline-block;
+            font-weight: 700;
+        }
+
+        .term-hover:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 10px;
+            line-height: 1.4;
+            white-space: normal;
+            min-width: 180px;
+            z-index: 9999;
+            border: 2px solid #facc15;
+            box-shadow: 3px 3px 0px black;
+            pointer-events: none;
+            text-transform: none;
+            font-weight: 400;
+        }
+
+        .svg-hover { cursor: help; transition: all 0.3s ease; }
+        .svg-hover:hover { filter: brightness(1.2); stroke: #facc15; stroke-width: 3; }
+
+        /* Animaciones Fisiológicas Audición */
+        .vibrate-mild { animation: vibrate 0.1s infinite; }
+        .vibrate-hard { animation: vibrate 0.05s infinite; stroke: #ef4444; stroke-width: 4px; }
+        
+        @keyframes vibrate {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            50% { transform: translateX(0); }
+            75% { transform: translateX(2px); }
+            100% { transform: translateX(0); }
+        }
+
+        .signal-pulse {
+            animation: pulse-color 0.5s ease-out;
+        }
+
+        @keyframes pulse-color {
+            0% { fill: #facc15; }
+            100% { fill: #fff; }
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 8px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #18181b; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #facc15; border: 1px solid black; }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <header class="bg-blue-600 p-4 brutalist-card flex justify-between items-center text-white">
+            <div>
+                <h1 class="text-3xl font-black italic uppercase tracking-tighter">GESPRACHE <span class="bg-yellow-400 text-black px-2">PODCAST VE</span></h1>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-blue-100">Physioprepas - Fisiología Neuro-Auditiva</p>
+            </div>
+            <div id="statusBadge" class="bg-black text-white p-2 font-black uppercase text-xs border-2 border-white">MODO: FISIOLÓGICO</div>
+        </header>
+
+        <div class="brutalist-card bg-white p-0">
+            <div class="bg-black text-white p-2">
+                <h2 class="text-xs font-black uppercase tracking-widest pl-2"><i class="fas fa-wave-square mr-2 text-blue-400"></i> CUADRO COMPARATIVO: VÍA AUDITIVA Y REFLEJOS</h2>
+            </div>
+            <div class="overflow-x-auto p-4 pb-6">
+                <table class="w-full text-[10px] text-left border-collapse border-2 border-black min-w-[800px]">
+                    <thead class="bg-zinc-100 uppercase font-black">
+                        <tr>
+                            <th class="border border-black p-2 bg-blue-50">Vía / Tracto</th>
+                            <th class="border border-black p-2">1ª Neurona (Origen)</th>
+                            <th class="border border-black p-2">Relevo Troncular</th>
+                            <th class="border border-black p-2">Decusación / Ascenso</th>
+                            <th class="border border-black p-2">Relevos Superiores</th>
+                            <th class="border border-black p-2 bg-yellow-50">Destino Cortical / Efector</th>
+                        </tr>
+                    </thead>
+                    <tbody class="font-medium">
+                        <tr class="hover:bg-zinc-50 transition-colors">
+                            <td class="border border-black p-2 font-bold">Vía Auditiva Ascendente</td>
+                            <td class="border border-black p-2"><span class="term-hover" data-tooltip="Ubicado en la cóclea, recibe estímulo del Órgano de Corti.">Ganglio Espiral</span> (VIII)</td>
+                            <td class="border border-black p-2">Núcleo Coclear (Bulbo/Puente)</td>
+                            <td class="border border-black p-2"><span class="term-hover" data-tooltip="Cruce bilateral de fibras en el puente.">Cuerpo Trapezoide</span> → Lemnisco Lateral</td>
+                            <td class="border border-black p-2"><span class="term-hover" data-tooltip="Mesencéfalo">Colículo Inf.</span> → <span class="term-hover" data-tooltip="Tálamo">N. Geniculado Medial</span></td>
+                            <td class="border border-black p-2 font-bold text-blue-600">Giros de Heschl (Áreas 41/42) y Wernicke (22)</td>
+                        </tr>
+                        <tr class="hover:bg-zinc-50 transition-colors bg-zinc-50">
+                            <td class="border border-black p-2 font-bold">Reflejo Estapedial (Atenuación)</td>
+                            <td class="border border-black p-2">Ganglio Espiral (VIII)</td>
+                            <td class="border border-black p-2">Núcleo Olivar Superior</td>
+                            <td class="border border-black p-2">Conexión con núcleo motor facial</td>
+                            <td class="border border-black p-2">Nervio Facial (VII Par)</td>
+                            <td class="border border-black p-2 font-bold text-orange-600">M. Tensor del Estapedio</td>
+                        </tr>
+                        <tr class="hover:bg-zinc-50 transition-colors">
+                            <td class="border border-black p-2 font-bold">Reflejo Timpánico</td>
+                            <td class="border border-black p-2">Ganglio Espiral (VIII)</td>
+                            <td class="border border-black p-2">Núcleo Olivar Superior</td>
+                            <td class="border border-black p-2">Conexión con núcleo motor trigeminal</td>
+                            <td class="border border-black p-2">Nervio Trigémino (V Par)</td>
+                            <td class="border border-black p-2 font-bold text-green-600">M. Tensor del Tímpano</td>
+                        </tr>
+                        <tr class="hover:bg-zinc-50 transition-colors bg-zinc-50">
+                            <td class="border border-black p-2 font-bold">Vía Macular (Vestibular)</td>
+                            <td class="border border-black p-2">Ganglio de Scarpa (VIII)</td>
+                            <td class="border border-black p-2">Núcleos Auditivos / Vestibulares</td>
+                            <td class="border border-black p-2">Lemnisco Lateral</td>
+                            <td class="border border-black p-2">Tubérculo Cuadrigémino Inf.</td>
+                            <td class="border border-black p-2 font-bold text-purple-600">Corteza Temporal (Orientación)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <aside class="lg:col-span-3 space-y-4">
+                <div class="brutalist-card p-4 bg-white">
+                    <p class="font-black text-[10px] uppercase mb-3 border-b-2 border-black italic">Casos Clínicos</p>
+                    <div class="grid gap-2">
+                        <button onclick="setCase('normal')" id="btn-normal" class="p-2 text-[10px] brutalist-btn active-case text-left">Fisiológico Normal</button>
+                        <button onclick="setCase('presbiacusia')" id="btn-presbiacusia" class="p-2 text-[10px] brutalist-btn bg-white text-left">Presbiacusia (Edad)</button>
+                        <button onclick="setCase('bell')" id="btn-bell" class="p-2 text-[10px] brutalist-btn bg-white text-left">Parálisis de Bell (VII)</button>
+                        <button onclick="setCase('schwannoma')" id="btn-schwannoma" class="p-2 text-[10px] brutalist-btn bg-white text-left">Schwannoma Vest. (OD)</button>
+                    </div>
+                </div>
+
+                <div class="brutalist-card p-4 bg-yellow-50">
+                    <p class="font-black text-[10px] uppercase mb-3 border-b-2 border-black italic">Estímulos Acústicos</p>
+                    <div class="grid gap-2">
+                        <div class="term-hover w-full" data-tooltip="Sonidos graves (~20 Hz). Estimulan el ápice de la cóclea.">
+                            <button onclick="triggerSound('low')" class="w-full p-2 brutalist-btn bg-blue-100 text-[10px] flex justify-between items-center">
+                                Tono Bajo (Ápice) <i class="fas fa-water"></i>
+                            </button>
+                        </div>
+                        <div class="term-hover w-full" data-tooltip="Sonidos agudos (~20,000 Hz). Estimulan la base de la cóclea.">
+                            <button onclick="triggerSound('high')" class="w-full p-2 brutalist-btn bg-green-100 text-[10px] flex justify-between items-center">
+                                Tono Alto (Base) <i class="fas fa-bolt"></i>
+                            </button>
+                        </div>
+                        <div class="term-hover w-full" data-tooltip="Sonido estruendoso. Desencadena el reflejo estapedial de atenuación para proteger el oído interno.">
+                            <button onclick="triggerSound('loud')" class="w-full p-2 brutalist-btn bg-red-100 text-[10px] flex justify-between items-center mt-2 border-t-2 border-black">
+                                Sonido Muy Fuerte <i class="fas fa-bullhorn"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="lg:col-span-9 space-y-6">
+
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="brutalist-card p-4 bg-white flex justify-center items-center relative overflow-hidden" style="min-height: 250px;">
+                        <span class="absolute top-0 left-0 bg-black text-white text-[9px] px-2 py-1 font-black uppercase z-50">Diagrama Oído Interno y Medio</span>
+                        
+                        <svg width="400" height="200" viewBox="0 0 500 200" id="earDiagram">
+                            <path d="M 0 80 L 100 80 M 0 120 L 100 120" stroke="black" stroke-width="4" fill="none" />
+                            <ellipse id="timpano" cx="100" cy="100" rx="5" ry="25" fill="#fde047" stroke="black" stroke-width="2" class="term-hover svg-hover" data-tooltip="Membrana Timpánica: Amplifica vibraciones del aire." />
+                            
+                            <path id="osiculos" d="M 105 100 L 130 80 L 150 100 L 170 100" stroke="#71717a" stroke-width="6" fill="none" stroke-linejoin="round" class="term-hover svg-hover" data-tooltip="Martillo, Yunque y Estribo. El estribo empuja la ventana oval." />
+                            
+                            <path id="musculoEstapedio" d="M 150 120 L 160 100" stroke="#ef4444" stroke-width="4" fill="none" class="term-hover svg-hover" data-tooltip="Músculo del Estapedio (Inervado por el VII Par). Tensa la cadena oscicular." />
+                            
+                            <g transform="translate(220, 100)">
+                                <path id="cochleaBase" d="M -50 0 C -50 -50, 20 -50, 20 0 C 20 30, -20 30, -20 0" stroke="black" stroke-width="15" fill="none" class="term-hover svg-hover transition-colors" data-tooltip="Base de la Cóclea: Detecta frecuencias altas. Se daña en la presbiacusia." />
+                                
+                                <path id="cochleaApex" d="M -20 0 C -20 -10, 0 -10, 0 0 C 0 5, -10 5, -10 0" stroke="#52525b" stroke-width="8" fill="none" class="term-hover svg-hover transition-colors" data-tooltip="Ápice de la Cóclea: Detecta frecuencias bajas." />
+                            </g>
+                            
+                            <path id="nervioVIII" d="M 240 100 L 350 100" stroke="#eab308" stroke-width="8" fill="none" class="term-hover svg-hover" data-tooltip="Nervio Vestibulococlear (VIII Par). Formado por axones del Ganglio Espiral." />
+                            <circle cx="350" cy="100" r="15" fill="#3b82f6" stroke="black" stroke-width="2" class="term-hover svg-hover" data-tooltip="Tallo Cerebral (Núcleos Cocleares y Complejo Olivar)." />
+                            <text id="bloqueoX" x="280" y="110" font-size="40" font-weight="900" fill="red" style="display:none;">X</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="brutalist-card bg-zinc-900 text-white flex flex-col md:flex-row min-h-[250px]">
+                    <div class="flex-1 p-6 overflow-y-auto custom-scroll">
+                        <h3 class="text-yellow-400 font-black uppercase text-sm mb-4 italic">Gesprache / Registro Neurofisiológico</h3>
+                        <div id="pathologyText" class="text-xs leading-relaxed space-y-4 text-zinc-300"></div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let currentCase = 'normal';
+
+        const cases = {
+            normal: {
+                status: "FISIOLÓGICO",
+                desc: `<p><strong class="text-white">Audición Bilateral Íntegra:</strong> Las ondas mecánicas retumban en la ventana oval. La endolinfa coclear (rica en potasio) despolariza el Órgano de Corti. El impulso viaja por el cuerpo trapezoide garantizando procesamiento bilateral.</p>`
+            },
+            presbiacusia: {
+                status: "PRESBIACUSIA",
+                desc: `<p><strong class="text-white">Pérdida Sensorial Base Coclear:</strong> Degeneración de las células ciliadas en la base de la cóclea. Hay dificultad severa para interpretar tonos agudos (alta frecuencia). Típico del envejecimiento.</p>`
+            },
+            bell: {
+                status: "PARÁLISIS DE BELL (VII PAR)",
+                desc: `<p><strong class="text-white">Fallo del Reflejo Estapedial:</strong> Al estar paralizado el nervio facial (VII), el músculo del estapedio no puede tensarse ante ruidos fuertes. El tímpano vibra descontroladamente causando <span class="text-red-400 font-bold">Hiperacusia</span>.</p>`
+            },
+            schwannoma: {
+                status: "SCHWANNOMA VESTIBULAR",
+                desc: `<p><strong class="text-white">Bloqueo Periférico (OD):</strong> Un tumor en el ángulo pontocerebeloso comprime el VIII par craneal. Causa sordera unilateral profunda (antes del cruce en el cuerpo trapezoide).</p>`
+            }
+        };
+
+        function setCase(key) {
+            currentCase = key;
+            document.querySelectorAll('.brutalist-btn').forEach(b => b.classList.remove('active-case'));
+            const btn = document.getElementById(`btn-${key}`);
+            if (btn) btn.classList.add('active-case');
+            
+            document.getElementById('statusBadge').innerText = `MODO: ${cases[key].status}`;
+            document.getElementById('pathologyText').innerHTML = cases[key].desc;
+            
+            // Visual Updates based on case
+            document.getElementById('bloqueoX').style.display = (key === 'schwannoma') ? 'block' : 'none';
+            document.getElementById('nervioVIII').style.stroke = (key === 'schwannoma') ? '#52525b' : '#eab308';
+            document.getElementById('cochleaBase').style.stroke = (key === 'presbiacusia') ? '#e5e5e5' : 'black';
+        }
+
+        function triggerSound(type) {
+            const timpano = document.getElementById('timpano');
+            const osiculos = document.getElementById('osiculos');
+            const base = document.getElementById('cochleaBase');
+            const apex = document.getElementById('cochleaApex');
+            const musculo = document.getElementById('musculoEstapedio');
+            const logBox = document.getElementById('pathologyText');
+
+            // Reset animations
+            timpano.classList.remove('vibrate-mild', 'vibrate-hard');
+            osiculos.classList.remove('vibrate-mild', 'vibrate-hard');
+            base.classList.remove('signal-pulse');
+            apex.classList.remove('signal-pulse');
+            musculo.style.strokeWidth = "4";
+
+            // Force reflow
+            void timpano.offsetWidth; 
+
+            if (currentCase === 'schwannoma') {
+                logBox.insertAdjacentHTML('afterbegin', `<p class="p-2 border border-red-500 bg-red-900/20 text-red-300 font-bold uppercase">[Bloqueo]: Impulso no llega al tallo por compresión del VIII par.</p>`);
+                timpano.classList.add('vibrate-mild');
+                return;
+            }
+
+            if (type === 'low') {
+                timpano.classList.add('vibrate-mild');
+                osiculos.classList.add('vibrate-mild');
+                apex.classList.add('signal-pulse');
+                logBox.insertAdjacentHTML('afterbegin', `<p class="p-2 border border-blue-500 bg-blue-900/20 text-blue-300"><strong class="uppercase">[Tono Bajo]:</strong> Onda viaja hasta el helicotrema (ápice coclear). Transducción exitosa.</p>`);
+            } 
+            else if (type === 'high') {
+                timpano.classList.add('vibrate-mild');
+                osiculos.classList.add('vibrate-mild');
+                
+                if (currentCase === 'presbiacusia') {
+                    logBox.insertAdjacentHTML('afterbegin', `<p class="p-2 border border-yellow-500 bg-yellow-900/20 text-yellow-300"><strong class="uppercase">[Tono Alto Fallido]:</strong> Células ciliadas de la base degeneradas. Ausencia de potencial de acción.</p>`);
+                } else {
+                    base.classList.add('signal-pulse');
+                    logBox.insertAdjacentHTML('afterbegin', `<p class="p-2 border border-green-500 bg-green-900/20 text-green-300"><strong class="uppercase">[Tono Alto]:</strong> Estimulación inmediata en la base de la cóclea. Transducción exitosa.</p>`);
+                }
+            }
+            else if (type === 'loud') {
+                if (currentCase === 'bell') {
+                    timpano.classList.add('vibrate-hard');
+                    osiculos.classList.add('vibrate-hard');
+                    base.classList.add('signal-pulse');
+                    apex.classList.add('signal-pulse');
+                    logBox.insertAdjacentHTML('afterbegin', `<p class="p-2 border border-red-500 bg-red-900/20 text-red-300"><strong class="uppercase">[Alerta - Hiperacusia]:</strong> Ausencia de reflejo estapedial por parálisis VII. Vibración excesiva daña células ciliadas.</p>`);
+                } else {
+                    timpano.classList.add('vibrate-mild');
+                    musculo.style.strokeWidth = "8"; // Contracción visual
+                    logBox.insertAdjacentHTML('afterbegin', `<p class="p-2 border border-orange-500 bg-orange-900/20 text-orange-300"><strong class="uppercase">[Reflejo de Atenuación]:</strong> Contracción del músculo estapedial (VII). Rigidez oscicular protege al oído interno.</p>`);
+                }
+            }
+        }
+
+        window.onload = () => setCase('normal');
+    </script>
+</body>
+</html>
