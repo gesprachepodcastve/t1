@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transducción Coclear | Physioprepas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&display=swap');
+
+        body { font-family: 'Public Sans', sans-serif; background-color: #f0f0f0; color: #1a1a1a; }
+        .brutalist-card { background: white; border: 4px solid black; box-shadow: 8px 8px 0px 0px rgba(0,0,0,1); }
+        .brutalist-btn { border: 3px solid black; box-shadow: 4px 4px 0px 0px rgba(0,0,0,1); transition: all 0.1s ease; cursor: pointer; text-transform: uppercase; font-weight: 900; }
+        .brutalist-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px rgba(0,0,0,1); }
+        .active-case { background-color: black !important; color: white !important; }
+        
+        /* Animación de Cizallamiento */
+        @keyframes shearing {
+            0%, 100% { transform: skewX(0deg); }
+            50% { transform: skewX(10deg); }
+        }
+        .animate-shear { animation: shearing 0.2s infinite ease-in-out; }
+        
+        .channel-gate { transition: all 0.2s; }
+        .gate-open { transform: translateY(-5px) rotate(-45deg); stroke: #22c55e; }
+        
+        .term-hover { cursor: help; border-bottom: 2px dashed #3b82f6; position: relative; display: inline-block; font-weight: 700; }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <header class="bg-blue-600 p-4 brutalist-card flex justify-between items-center text-white">
+            <div>
+                <h1 class="text-3xl font-black italic uppercase tracking-tighter">FISIO-AUDICIÓN <span class="bg-yellow-400 text-black px-2">MICROMECÁNICA</span></h1>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-blue-100">Mecanismo de Cizallamiento y Canales K+</p>
+            </div>
+        </header>
+
+        <div class="brutalist-card bg-white p-0">
+            <div class="bg-black text-white p-2">
+                <h2 class="text-xs font-black uppercase tracking-widest pl-2">RESUMEN DE VÍAS Y MECANISMO TRANSDUCTOR</h2>
+            </div>
+            <div class="overflow-x-auto p-4">
+                <table class="w-full text-[10px] border-collapse border-2 border-black min-w-[800px]">
+                    <thead class="bg-zinc-100 uppercase font-black">
+                        <tr>
+                            <th class="border border-black p-2">Proceso / Vía</th>
+                            <th class="border border-black p-2">Mecanismo Clave</th>
+                            <th class="border border-black p-2">Estructuras Involucradas</th>
+                            <th class="border border-black p-2">Ion / Neurotransmisor</th>
+                            <th class="border border-black p-2">Destino / Efecto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border border-black p-2 font-bold">Generación del Sonido</td>
+                            <td class="border border-black p-2">Cizallamiento (*Shearing*)</td>
+                            <td class="border border-black p-2">Memb. Tectorial vs Memb. Basilar</td>
+                            <td class="border border-black p-2">Entrada de <b>Potasio (K+)</b></td>
+                            <td class="border border-black p-2 italic">Despolarización de Célula Ciliada</td>
+                        </tr>
+                        <tr class="bg-zinc-50">
+                            <td class="border border-black p-2 font-bold">Reflejo Vestibulococlear</td>
+                            <td class="border border-black p-2">Estabilización de imagen</td>
+                            <td class="border border-black p-2">Canales Semicirculares y M. Extraoculares</td>
+                            <td class="border border-black p-2">Acetilcolina / Glutamato</td>
+                            <td class="border border-black p-2 italic">Movimiento ocular compensatorio</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-black p-2 font-bold">Vía Auditiva Central</td>
+                            <td class="border border-black p-2">Tonotopía Ascendente</td>
+                            <td class="border border-black p-2">Cuerpo Trapezoide → Lemnisco Lat.</td>
+                            <td class="border border-black p-2">Glutamato</td>
+                            <td class="border border-black p-2 italic">Corteza Temporal (Área 41, 42)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <main class="lg:col-span-8 space-y-6">
+                <div class="brutalist-card p-6 bg-white relative overflow-hidden">
+                    <span class="absolute top-0 left-0 bg-black text-white text-[9px] px-2 py-1 font-black uppercase z-50">Zoom: Órgano de Corti (Mecanismo Transductor)</span>
+                    
+                    <div class="flex flex-col items-center justify-center space-y-8 py-10">
+                        <div id="tectorial" class="w-64 h-8 bg-blue-400 border-4 border-black relative rounded-full" style="margin-left: 20px;">
+                            <span class="absolute -top-6 left-0 text-[10px] font-black uppercase">Membrana Tectorial</span>
+                        </div>
+
+                        <div class="flex space-x-4 relative">
+                            <div id="cilio" class="w-8 h-32 bg-yellow-200 border-4 border-black relative origin-bottom transition-transform">
+                                <div id="canalK" class="absolute top-2 right-[-8px] w-4 h-4 bg-red-500 border-2 border-black rounded-full channel-gate"></div>
+                                <div class="absolute -right-12 top-0 text-[9px] font-bold text-red-600" id="ionLabel" style="display:none;">K+ K+ K+</div>
+                            </div>
+                            <div class="w-8 h-24 bg-yellow-200 border-4 border-black origin-bottom"></div>
+                            <div class="w-8 h-16 bg-yellow-200 border-4 border-black origin-bottom"></div>
+                        </div>
+
+                        <div id="basilar" class="w-80 h-4 bg-zinc-800 border-2 border-black">
+                            <span class="absolute mt-6 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase italic">Membrana Basilar (Vibración arriba/abajo)</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <aside class="lg:col-span-4 space-y-4">
+                <div class="brutalist-card p-4 bg-yellow-50">
+                    <h3 class="font-black text-xs uppercase border-b-2 border-black mb-4">Control de Estímulo</h3>
+                    <button onclick="startTransduction()" class="w-full p-4 brutalist-btn bg-green-400 mb-4 text-xs">Simular Onda Sonora</button>
+                    <button onclick="stopTransduction()" class="w-full p-2 brutalist-btn bg-white text-xs">Detener</button>
+                </div>
+
+                <div class="brutalist-card p-4 bg-black text-white">
+                    <h3 class="text-yellow-400 font-black text-xs uppercase mb-2 italic text-center">Explicación Fisiológica</h3>
+                    <div id="log" class="text-[11px] leading-tight space-y-2 font-medium">
+                        <p>1. La vibración de la <b>Memb. Basilar</b> desplaza la célula ciliada.</p>
+                        <p>2. Al estar la <b>Memb. Tectorial</b> fija o moviéndose en otro eje, se crea un <b>cizallamiento</b>.</p>
+                        <p>3. Los estereocilios se inclinan hacia el más alto, tensando los <i>tip links</i>.</p>
+                        <p>4. Se abren mecánicamente los canales de <b>Potasio (K+)</b>, iniciando el potencial.</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        let isPlaying = false;
+
+        function startTransduction() {
+            if(isPlaying) return;
+            isPlaying = true;
+            
+            const tectorial = document.getElementById('tectorial');
+            const cilio = document.getElementById('cilio');
+            const canalK = document.getElementById('canalK');
+            const ionLabel = document.getElementById('ionLabel');
+
+            tectorial.classList.add('animate-shear');
+            cilio.style.transform = 'rotate(15deg)';
+            canalK.classList.add('gate-open');
+            ionLabel.style.display = 'block';
+
+            document.getElementById('log').insertAdjacentHTML('afterbegin', 
+                `<p class="text-green-400 font-bold uppercase p-1 border border-green-400">[DESPOLARIZACIÓN]: K+ entrando a la célula.</p>`);
+        }
+
+        function stopTransduction() {
+            isPlaying = false;
+            document.getElementById('tectorial').classList.remove('animate-shear');
+            document.getElementById('cilio').style.transform = 'rotate(0deg)';
+            document.getElementById('canalK').classList.remove('gate-open');
+            document.getElementById('ionLabel').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
